@@ -1,0 +1,126 @@
+package tn.zeros.smg.entities;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import tn.zeros.smg.entities.enums.UStatus;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.*;
+
+@Entity
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class User implements Serializable, UserDetails {
+    //from excel sheet
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long code;
+    String nom;
+    String adresse;
+    String secteur;
+    int exonoration;
+    int bloque;
+    String idfiscal;
+    String codetva;
+    LocalDate dateeffet;
+    String regcommerce;
+    String responsable;
+    String tel1;
+    String tel2;
+    String fax;
+    String email;
+    String magasinier1;
+    String telmag1;
+    String magasinier2;
+    String telmag2;
+    String magasinier3;
+    String telmag3;
+    String modereg;
+    int nbjour;
+    String banque;
+    String rib;
+    int crdplaf;
+    String encour;
+    int txrem;
+    int TXMAJ;
+    String banque2;
+    String rib2;
+    String banque3;
+    String rib3;
+    String RSUPP;
+    String REGIME;
+    String IMPRMS;
+    String CR;
+    String SOLDE;
+    String ENC;
+    String DATLIM;
+    //Added stuff
+    String password;
+    @ManyToMany(fetch = FetchType.EAGER)
+    Set<Role> role;
+    @Enumerated(EnumType.STRING)
+    private UStatus status;
+
+    // UserDetails methods
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(email, user.email);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(email);
+    }
+    @Override
+    @JsonIgnore
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.role;
+    }
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isEnabled() { return true; }
+
+    public User(String email, String password, String nom) {
+        this.nom = nom;
+        this.email = email;
+        this.password = password;
+        // Set default values for other fields
+        this.role = new HashSet<>(); // Initialize empty set for roles
+    }
+}
