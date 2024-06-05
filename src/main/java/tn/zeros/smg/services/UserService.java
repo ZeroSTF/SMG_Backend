@@ -1,5 +1,7 @@
 package tn.zeros.smg.services;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -11,18 +13,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
-import tn.zeros.smg.entities.Confirmation;
 import tn.zeros.smg.entities.Role;
 import tn.zeros.smg.entities.User;
 import tn.zeros.smg.entities.enums.UStatus;
-import tn.zeros.smg.repositories.ConfirmationRepository;
 import tn.zeros.smg.repositories.RoleRepository;
 import tn.zeros.smg.repositories.UserRepository;
 import tn.zeros.smg.services.IServices.IEmailService;
 import tn.zeros.smg.services.IServices.ITokenService;
 import tn.zeros.smg.services.IServices.IUserService;
 
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -31,7 +34,7 @@ import java.util.Set;
 public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final ConfirmationRepository confirmationRepository;
+    //private final ConfirmationRepository confirmationRepository;
 
     private final IEmailService emailService;
     private final ITokenService tokenService;
@@ -55,11 +58,11 @@ public class UserService implements IUserService {
         user.setPassword(encodedPassword);
         user.setStatus(UStatus.Pending);
         user.setRole(authorities);
-        Confirmation confirmation = new Confirmation(user);
         userRepository.save(user);
-        confirmationRepository.save(confirmation);
         /////////////////MAILING//////////////////////////
-        emailService.sendHtmlEmail(user.getNom(),user.getEmail(),confirmation.getToken());
+        //Confirmation confirmation = new Confirmation(user);
+        //confirmationRepository.save(confirmation);
+        //emailService.sendHtmlEmail(user.getNom(),user.getEmail(),confirmation.getToken());
         /////////////////////////////////////////////////
         return user;
     }
@@ -84,11 +87,65 @@ public class UserService implements IUserService {
 
     @Override
     public Boolean verifyToken(String token) {
-        Confirmation confirmation = confirmationRepository.findByToken(token);
+        /*Confirmation confirmation = confirmationRepository.findByToken(token);
         User user = userRepository.findByEmail(confirmation.getUser().getEmail()).get();
         user.setStatus(UStatus.Active);
         confirmationRepository.delete(confirmation);
-        userRepository.save(user);
+        userRepository.save(user);*/
         return Boolean.TRUE;
+    }
+
+    @Override
+    public List<User> retrieveAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public User retrieveUser(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+    }
+
+    @Override
+    @Transactional
+    public User addUser(User c) {
+        //////////////////// Check if the email is unique/////////////////////
+        if (userRepository.findByEmail(c.getEmail()).isPresent()) {
+            return null;
+        }
+        //////////////////////////////////////////////////////////////////////
+        c.setPassword(encoder.encode(c.getPassword()));
+        Role userRole = roleRepository.findById(c.getRole().stream().findFirst().get().getId()).get();
+        Set<Role> authorities = new HashSet<>();
+        authorities.add(userRole);
+        c.setRole(authorities);
+        return userRepository.save(c);
+    }
+
+    @Override
+    @Transactional
+    public void removeUser(Long id) throws IOException {
+        User user = userRepository.findById(id).orElse(null);
+        if(user != null){
+            /*Confirmation c = confirmationRepository.findConfirmationByUser(user);
+            if(c != null){
+                confirmationRepository.delete(c);
+            }*/
+            userRepository.deleteById(id);
+        }
+    }
+
+    @Override
+    public User modifyUser(User user) {
+        Optional<User> existingUser = userRepository.findById(user.getCode());
+        if (existingUser.isPresent()) {
+            return userRepository.save(user);
+        } else {
+            throw new EntityNotFoundException("User not found with id: " + user.getCode());
+        }
+    }
+
+    @Override
+    public User loadUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
     }
 }

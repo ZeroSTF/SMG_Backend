@@ -21,7 +21,7 @@ import static tn.zeros.smg.utils.EmailUtility.getVerificationUrl;
 @Service
 @RequiredArgsConstructor
 public class EmailService implements IEmailService {
-    public static final String NEW_USER_ACCOUNT_VERIFICATION = "New User Account Verification";
+    public static final String NEW_USER_ACCOUNT_VERIFICATION = "Verification SMG";
     public static final String UTF_8_ENCODING = "UTF-8";
     public static final String EMAIL_TEMPLATE = "emailTemplate";
     public static final String TEXT_HTML_ENCONDING = "text/html";
