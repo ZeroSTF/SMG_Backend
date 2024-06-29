@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import tn.zeros.smg.entities.enums.UStatus;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.*;
 
 @Entity
@@ -24,7 +23,8 @@ public class User implements Serializable, UserDetails {
     //from excel sheet
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long code;
+    Long id;
+    String code;
     String nom;
     String adresse;
     String secteur;
@@ -32,7 +32,7 @@ public class User implements Serializable, UserDetails {
     int bloque;
     String idfiscal;
     String codetva;
-    LocalDate dateeffet;
+    String dateeffet;
     String regcommerce;
     String responsable;
     String tel1;
@@ -59,7 +59,7 @@ public class User implements Serializable, UserDetails {
     String rib3;
     String RSUPP;
     String REGIME;
-    String IMPRMS;
+    int IMPRMS;
     String CR;
     String SOLDE;
     String ENC;
@@ -116,10 +116,11 @@ public class User implements Serializable, UserDetails {
     @JsonIgnore
     public boolean isEnabled() { return true; }
 
-    public User(String email, String password, String nom) {
+    public User(String email, String password, String nom, String adresse, String codetva, String tel1, String tel2) {
         this.nom = nom;
         this.email = email;
         this.password = password;
+        this.SOLDE="00";
         // Set default values for other fields
         this.role = new HashSet<>(); // Initialize empty set for roles
     }

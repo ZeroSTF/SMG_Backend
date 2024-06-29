@@ -16,6 +16,7 @@ import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
 import tn.zeros.smg.entities.Role;
 import tn.zeros.smg.entities.User;
 import tn.zeros.smg.entities.enums.UStatus;
+import tn.zeros.smg.exceptions.InvalidCredentialsException;
 import tn.zeros.smg.repositories.RoleRepository;
 import tn.zeros.smg.repositories.UserRepository;
 import tn.zeros.smg.services.IServices.IEmailService;
@@ -23,10 +24,7 @@ import tn.zeros.smg.services.IServices.ITokenService;
 import tn.zeros.smg.services.IServices.IUserService;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -69,15 +67,60 @@ public class UserService implements IUserService {
 
     @Override
     public LoginResponseDTO login(String email, String password) {
-        try{
-            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-            String token = tokenService.generateJwt(auth);
-            User user = userRepository.findByEmail(email).get();
-            return new LoginResponseDTO(user.getNom(), token);
-        } catch (AuthenticationException e){
-            //e.printStackTrace();
-            return new LoginResponseDTO("No email to return", "Invalid email/password supplied");
+        // Find the user by email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidCredentialsException("Wrong email or password"));
+
+        // Check if the password matches
+        if (!encoder.matches(password, user.getPassword()) || !user.getStatus().equals(UStatus.Active)) {
+            throw new InvalidCredentialsException("Wrong email or password");
         }
+
+        // Generate JWT token
+        Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        String token = tokenService.generateJwt(auth);
+
+        String role = "user";
+        Set<Role> roles = user.getRole();
+        if (!roles.isEmpty()) {
+            Iterator<Role> iterator = roles.iterator();
+            Role firstRole = iterator.next();
+            Long firstRoleId = firstRole.getId();
+            if (firstRoleId == 1) {
+                role = "admin";
+            }
+        }
+
+        // Create and return the login response
+        return new LoginResponseDTO(user.getCode(), user.getNom(), user.getEmail(), role, token);
+    }
+
+    //login with token
+    @Override
+    public LoginResponseDTO login(String token) {
+        if (token.startsWith("{\"accessToken\":\"") && token.endsWith("\"}")) {
+            token= token.substring(16, token.length() - 2);
+        }
+        //login with token
+        Authentication auth = new UsernamePasswordAuthenticationToken(token, token);
+        String email = tokenService.decodeJwt(token).getSubject();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid token"));
+        if(!user.getStatus().equals(UStatus.Active))
+            return null;
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        String role = "user";
+        Set<Role> roles = user.getRole();
+        if (!roles.isEmpty()) {
+            Iterator<Role> iterator = roles.iterator();
+            Role firstRole = iterator.next();
+            Long firstRoleId = firstRole.getId();
+            if (firstRoleId == 1) {
+                role = "admin";
+            }
+        }
+        return new LoginResponseDTO(user.getCode(), user.getNom(), user.getEmail(), role, token);
     }
 
     @Override
@@ -103,6 +146,11 @@ public class UserService implements IUserService {
     @Override
     public User retrieveUser(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+    }
+
+    @Override
+    public User retrieveUserByCode(String code) {
+        return userRepository.findByCode(code).orElseThrow(() -> new EntityNotFoundException("User not found with code: " + code));
     }
 
     @Override
@@ -136,11 +184,11 @@ public class UserService implements IUserService {
 
     @Override
     public User modifyUser(User user) {
-        Optional<User> existingUser = userRepository.findById(user.getCode());
+        Optional<User> existingUser = userRepository.findById(user.getId());
         if (existingUser.isPresent()) {
             return userRepository.save(user);
         } else {
-            throw new EntityNotFoundException("User not found with id: " + user.getCode());
+            throw new EntityNotFoundException("User not found with id: " + user.getId());
         }
     }
 

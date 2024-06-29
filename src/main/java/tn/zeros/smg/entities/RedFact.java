@@ -20,9 +20,11 @@ import java.io.Serializable;
 public class RedFact implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
+    String typfa;
     String nfact;
     String datfact;
-    Long codecl;
+    String codecl;
     String nbon;
     int srtret;
     String typvte;

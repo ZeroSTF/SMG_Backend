@@ -10,6 +10,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LoginResponseDTO {
-    private String fullName;
+    private String id;
+    private String name;
+    private String email;
+    private String role;
     private String jwt;
 }

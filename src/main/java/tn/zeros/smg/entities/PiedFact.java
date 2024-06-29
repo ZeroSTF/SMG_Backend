@@ -20,30 +20,31 @@ import java.io.Serializable;
 public class PiedFact implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
     String nFact;
     String typvte;
-    Long codecl;
+    String codecl;
     String datvte;
     int srtret;
-    float brutht;
-    float totrem;
-    float btva0;
-    float btva6;
-    float mtva6;
-    float btva12;
-    float mtva12;
-    float btva18;
-    float mtva18;
-    float tottva;
+    String brutht;
+    String totrem;
+    String btva0;
+    String btva6;
+    String mtva6;
+    String btva12;
+    String mtva12;
+    String btva18;
+    String mtva18;
+    String tottva;
     int timbre;
-    float totttc;
-    float majoration;
+    String totttc;
+    String majoration;
     String nomclt;
     String adrclt;
     String tvaclt;
     String patclt;
-    float netht;
-    float mtfodec;
+    String netht;
+    String mtfodec;
     String livrea;
-    float RS;
+    String RS;
 }

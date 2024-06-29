@@ -15,4 +15,9 @@ public class RegistrationDTO {
     String nom;
     String email;
     String password;
+    String adresse;
+    String codetva;
+    String tel1;
+    String tel2;
+    //String photoMat;
 }

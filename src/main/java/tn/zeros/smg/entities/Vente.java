@@ -20,19 +20,20 @@ import java.io.Serializable;
 public class Vente implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
     String reference;
     String typvte;
-    Long codecl;
+    String codecl;
     String datvte;
     String nbon;
     String fab;
     Long nordre;
     int srtret;
     int qte;
-    float pvht;
+    String pvht;
     int remise;
     int tva;
-    float pvttc;
+    String pvttc;
     String magasinier;
     String RMQ;
     int STKMAG;
