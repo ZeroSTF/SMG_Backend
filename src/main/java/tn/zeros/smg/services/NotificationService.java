@@ -27,7 +27,7 @@ public class NotificationService implements INotificationService {
     public Notification retrieveNotification(Long id) {
         if (notificationRepository.findById(id).isPresent()){
             Notification notification = notificationRepository.findById(id).get();
-            notification.setSeen(true);
+            notification.setRead(true);
             notificationRepository.save(notification);
             return notification;
         }else {
@@ -37,8 +37,8 @@ public class NotificationService implements INotificationService {
 
     @Override
     public Notification addNotification(Notification notification) {
-        notification.setSeen(false);
-        notification.setDate(LocalDateTime.now());
+        notification.setRead(false);
+        notification.setTime(LocalDateTime.now());
         return notificationRepository.save(notification);
     }
 
@@ -57,7 +57,7 @@ public class NotificationService implements INotificationService {
 
     @Override
     public List<Notification> getUnread(User user){
-        return notificationRepository.findByUserAndSeen(user,false);
+        return notificationRepository.findNotificationsByUserAndIsRead(user,false);
     }
 
     @Override

@@ -73,7 +73,6 @@ public class EmailService implements IEmailService {
             helper.addAttachment(homework.getFilename(), homework);*/
             emailSender.send(message);
         } catch (Exception exception) {
-            System.out.println(exception.getMessage());
             throw new RuntimeException(exception.getMessage());
         }
     }

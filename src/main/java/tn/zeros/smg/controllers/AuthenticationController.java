@@ -1,6 +1,7 @@
 package tn.zeros.smg.controllers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +20,13 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
+@Slf4j
 public class AuthenticationController {
     private final IUserService userService;
     private final ITokenService tokenService;
     @PostMapping("/register")
     public ResponseEntity<Boolean> registerUser(@RequestBody RegistrationDTO body){
+        log.info(body.toString());
         User user = new User(body.getEmail(), body.getPassword(), body.getNom(), body.getAdresse(), body.getCodetva(), body.getTel1(), body.getTel2());
         User registeredUser = userService.registerUser(user);
         if (registeredUser != null) {

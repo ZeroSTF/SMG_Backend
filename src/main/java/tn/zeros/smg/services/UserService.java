@@ -13,10 +13,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
+import tn.zeros.smg.entities.Confirmation;
 import tn.zeros.smg.entities.Role;
 import tn.zeros.smg.entities.User;
 import tn.zeros.smg.entities.enums.UStatus;
 import tn.zeros.smg.exceptions.InvalidCredentialsException;
+import tn.zeros.smg.repositories.ConfirmationRepository;
 import tn.zeros.smg.repositories.RoleRepository;
 import tn.zeros.smg.repositories.UserRepository;
 import tn.zeros.smg.services.IServices.IEmailService;
@@ -32,7 +34,7 @@ import java.util.*;
 public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    //private final ConfirmationRepository confirmationRepository;
+    private final ConfirmationRepository confirmationRepository;
 
     private final IEmailService emailService;
     private final ITokenService tokenService;
@@ -54,13 +56,13 @@ public class UserService implements IUserService {
         Set<Role> authorities = new HashSet<>();
         authorities.add(userRole);
         user.setPassword(encodedPassword);
-        user.setStatus(UStatus.Pending);
+        user.setStatus(UStatus.Unconfirmed);
         user.setRole(authorities);
         userRepository.save(user);
         /////////////////MAILING//////////////////////////
-        //Confirmation confirmation = new Confirmation(user);
-        //confirmationRepository.save(confirmation);
-        //emailService.sendHtmlEmail(user.getNom(),user.getEmail(),confirmation.getToken());
+        Confirmation confirmation = new Confirmation(user);
+        confirmationRepository.save(confirmation);
+        emailService.sendHtmlEmail(user.getNom(),user.getEmail(),confirmation.getToken());
         /////////////////////////////////////////////////
         return user;
     }
@@ -130,11 +132,11 @@ public class UserService implements IUserService {
 
     @Override
     public Boolean verifyToken(String token) {
-        /*Confirmation confirmation = confirmationRepository.findByToken(token);
+        Confirmation confirmation = confirmationRepository.findByToken(token);
         User user = userRepository.findByEmail(confirmation.getUser().getEmail()).get();
-        user.setStatus(UStatus.Active);
+        user.setStatus(UStatus.Pending);
         confirmationRepository.delete(confirmation);
-        userRepository.save(user);*/
+        userRepository.save(user);
         return Boolean.TRUE;
     }
 
@@ -174,10 +176,10 @@ public class UserService implements IUserService {
     public void removeUser(Long id) throws IOException {
         User user = userRepository.findById(id).orElse(null);
         if(user != null){
-            /*Confirmation c = confirmationRepository.findConfirmationByUser(user);
+            Confirmation c = confirmationRepository.findConfirmationByUser(user);
             if(c != null){
                 confirmationRepository.delete(c);
-            }*/
+            }
             userRepository.deleteById(id);
         }
     }

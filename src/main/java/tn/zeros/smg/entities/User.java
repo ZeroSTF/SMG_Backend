@@ -20,7 +20,6 @@ import java.util.*;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User implements Serializable, UserDetails {
-    //from excel sheet
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -120,6 +119,10 @@ public class User implements Serializable, UserDetails {
         this.nom = nom;
         this.email = email;
         this.password = password;
+        this.adresse = adresse;
+        this.codetva = codetva;
+        this.tel1 = tel1;
+        this.tel2 = tel2;
         this.SOLDE="00";
         // Set default values for other fields
         this.role = new HashSet<>(); // Initialize empty set for roles

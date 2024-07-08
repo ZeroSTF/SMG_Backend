@@ -1,6 +1,8 @@
 package tn.zeros.smg.controllers;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/notification")
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
+@Slf4j
 public class NotificationController {
     private final INotificationService notificationService;
     private final IUserService userService;
@@ -73,6 +76,27 @@ public class NotificationController {
             return ResponseEntity.badRequest().body(e.getMessage()) ;
         }
         return ResponseEntity.ok().body(notificationService.getByUser(currentUser));
+    }
+
+    @GetMapping("/markAllAsRead")
+    @Transactional
+    public ResponseEntity<?> markAllAsRead() {
+        User currentUser;
+        try {
+            ////////////retrieving current user/////////////////////////////////
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String currentEmail = authentication.getName();
+            currentUser = userService.loadUserByEmail(currentEmail);
+            ////////////////////////////////////////////////////////////////////
+        }catch(Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage()) ;
+        }
+        List<Notification> notifications = notificationService.getUnread(currentUser);
+        for(Notification n : notifications) {
+            n.setRead(true);
+            notificationService.modifyNotification(n);
+        }
+        return ResponseEntity.ok().body(true);
     }
 
 }

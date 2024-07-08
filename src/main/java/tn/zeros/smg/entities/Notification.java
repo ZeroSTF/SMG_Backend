@@ -20,11 +20,17 @@ public class Notification implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    @Enumerated(EnumType.STRING)
-    NType type;
-    String content;
-    LocalDateTime date;
-    boolean seen;
-    @ManyToOne
-    User user;
+    String title;
+    String description;
+    @Temporal(TemporalType.TIMESTAMP)
+    LocalDateTime time;
+    boolean isRead;
+    String link;
+    boolean useRouter;
+
+    @ToString.Exclude
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
+
 }

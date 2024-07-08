@@ -1,4 +1,3 @@
-/*
 package tn.zeros.smg.entities;
 
 import jakarta.persistence.*;
@@ -31,4 +30,4 @@ public class Confirmation {
         this.createdAt=LocalDateTime.now();
         this.token= UUID.randomUUID().toString();
     }
-}*/
+}
