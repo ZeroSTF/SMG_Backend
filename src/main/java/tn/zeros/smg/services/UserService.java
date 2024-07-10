@@ -58,11 +58,7 @@ public class UserService implements IUserService {
         user.setStatus(UStatus.Unconfirmed);
         user.setRole(authorities);
         userRepository.save(user);
-        /////////////////MAILING//////////////////////////
-        Confirmation confirmation = new Confirmation(user);
-        confirmationRepository.save(confirmation);
-        emailService.sendHtmlEmail(user.getNom(),user.getEmail(),confirmation.getToken());
-        /////////////////////////////////////////////////
+        confirmNewEmail(user);
         return user;
     }
 
@@ -89,6 +85,9 @@ public class UserService implements IUserService {
             Long firstRoleId = firstRole.getId();
             if (firstRoleId == 1) {
                 role = "admin";
+            }
+            if (firstRoleId == 3) {
+                role = "old";
             }
         }
 
@@ -187,6 +186,18 @@ public class UserService implements IUserService {
     public User modifyUser(User user) {
         Optional<User> existingUser = userRepository.findById(user.getId());
         if (existingUser.isPresent()) {
+            //if the user is old, change him to user
+            if (existingUser.get().getRole().stream().findFirst().get().getId() == 3) {
+                Role userRole = roleRepository.findById(2L).get();
+                Set<Role> authorities = new HashSet<>();
+                authorities.add(userRole);
+                user.setRole(authorities);
+            }
+            //if email is changed, confirm the new email
+            if (!existingUser.get().getEmail().equals(user.getEmail())) {
+                user.setStatus(UStatus.Unconfirmed);
+                confirmNewEmail(user);
+            }
             return userRepository.save(user);
         } else {
             throw new EntityNotFoundException("User not found with id: " + user.getId());
@@ -196,5 +207,14 @@ public class UserService implements IUserService {
     @Override
     public User loadUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+    }
+
+    @Override
+    public void confirmNewEmail(User user) {
+        /////////////////MAILING//////////////////////////
+        Confirmation confirmation = new Confirmation(user);
+        confirmationRepository.save(confirmation);
+        emailService.sendHtmlEmail(user.getNom(),user.getEmail(),confirmation.getToken());
+        /////////////////////////////////////////////////
     }
 }

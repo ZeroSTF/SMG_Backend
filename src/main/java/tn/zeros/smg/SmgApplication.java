@@ -13,6 +13,9 @@ import tn.zeros.smg.entities.enums.TypeRole;
 import tn.zeros.smg.repositories.RoleRepository;
 import tn.zeros.smg.repositories.UserRepository;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @SpringBootApplication
 @EnableAspectJAutoProxy
 @EnableScheduling
@@ -31,10 +34,22 @@ public class SmgApplication {
 				user.setPassword(encoder.encode("password"));
 				userRepository.save(user);
 			});*/
-			if(roleRepository.findByType(TypeRole.ADMIN).isPresent() && roleRepository.findByType(TypeRole.USER).isPresent() && roleRepository.findByType(TypeRole.AGENT).isPresent()) return;
-			roleRepository.save(new Role(null, "ADMIN", TypeRole.ADMIN));
-			roleRepository.save(new Role(null, "USER", TypeRole.USER));
-			roleRepository.save(new Role(null, "USER", TypeRole.AGENT));
+
+			//set every user's role to old for testing purposes
+			/*userRepository.findAll().forEach(user -> {
+				Role oldRole = roleRepository.findById(3L).get();
+				Set<Role> authorities = new HashSet<>();
+				authorities.add(oldRole);
+				user.setRole(authorities);
+				userRepository.save(user);
+			});*/
+
+			if(!roleRepository.findByType(TypeRole.ADMIN).isPresent())
+				roleRepository.save(new Role(1L, "ADMIN", TypeRole.ADMIN));
+			if(!roleRepository.findByType(TypeRole.USER).isPresent())
+				roleRepository.save(new Role(2L, "USER", TypeRole.USER));
+			if(!roleRepository.findByType(TypeRole.OLD).isPresent())
+				roleRepository.save(new Role(3L, "USER", TypeRole.OLD));
 		};
 
 

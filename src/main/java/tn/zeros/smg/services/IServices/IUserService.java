@@ -22,4 +22,5 @@ public interface IUserService {
     void removeUser(Long id) throws IOException;
     User modifyUser(User User);
     User loadUserByEmail(String email);
+    void confirmNewEmail(User user);
 }
