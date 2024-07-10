@@ -39,13 +39,13 @@ public class Article implements Serializable {
     String DDATENT;
     int DQTEENT;
     int REPLICAT;
-    float PUDEV;
-    float PAHT;
+    String PUDEV;
+    String PAHT;
     int MARGE;
-    float PVHT;
+    String PVHT;
     int STOCK;
     String QTECMD; //empty
-    int STKEVQV;
+    int STKEQV;
     int ARRIVAGE; //all 0
     int STKMAG;
     String VALIDE;
@@ -57,4 +57,5 @@ public class Article implements Serializable {
     int CUMENT;
     String CBARRE;
     int QCART;
+    int STKMAGP;
 }

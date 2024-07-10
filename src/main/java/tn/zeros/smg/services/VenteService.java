@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import tn.zeros.smg.entities.PiedVte;
 import tn.zeros.smg.entities.RedFact;
 import tn.zeros.smg.entities.Vente;
+import tn.zeros.smg.repositories.ArticleRepository;
 import tn.zeros.smg.repositories.PiedVteRepository;
 import tn.zeros.smg.repositories.VenteRepository;
 import tn.zeros.smg.services.IServices.IFactureService;
@@ -20,6 +21,7 @@ public class VenteService implements IVenteService {
     private final PiedVteRepository piedVteRepository;
     private final VenteRepository venteRepository;
     private final IFactureService factureService;
+    private final ArticleRepository articleRepository;
 
     @Override
     public List<PiedVte> retrieveAllVentes() {
@@ -43,6 +45,9 @@ public class VenteService implements IVenteService {
         for (RedFact redFact : redFactList) {
             List<Vente> venteList = venteRepository.findByNbonAndCodecl(redFact.getNbon(), codeCl);
             if (!venteList.isEmpty()) {
+                for (Vente vente : venteList) {
+                    vente.setInstance(articleRepository.findFirstByReference(vente.getReference()).getDesignation()); //todo fix
+                }
                 return venteList;
             }
         }
