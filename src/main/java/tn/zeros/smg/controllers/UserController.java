@@ -89,4 +89,10 @@ public class UserController {
         return ResponseEntity.ok().body(currentUser);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> chercherUser(@RequestParam(value = "query", required = false) String query) {
+        List<User> users = userService.chercherUser(query);
+        return ResponseEntity.ok().body(users);
+    }
+
 }

@@ -23,4 +23,5 @@ public interface IUserService {
     User modifyUser(User User);
     User loadUserByEmail(String email);
     void confirmNewEmail(User user);
+    List<User> chercherUser(String nom);
 }

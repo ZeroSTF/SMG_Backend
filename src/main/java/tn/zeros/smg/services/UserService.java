@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -140,7 +141,7 @@ public class UserService implements IUserService {
 
     @Override
     public List<User> retrieveAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAll(Sort.by(Sort.Direction.ASC, "nom"));
     }
 
     @Override
@@ -216,5 +217,13 @@ public class UserService implements IUserService {
         confirmationRepository.save(confirmation);
         emailService.sendHtmlEmail(user.getNom(),user.getEmail(),confirmation.getToken());
         /////////////////////////////////////////////////
+    }
+
+    @Override
+    public List<User> chercherUser(String nom) {
+        if(nom == null || nom.isEmpty()){
+            return userRepository.findAll(Sort.by(Sort.Direction.ASC, "nom"));
+        }
+        return userRepository.findByNomContainingIgnoreCaseOrderByNom(nom);
     }
 }
