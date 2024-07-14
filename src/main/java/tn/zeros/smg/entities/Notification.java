@@ -3,8 +3,6 @@ package tn.zeros.smg.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import tn.zeros.smg.entities.enums.NType;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 

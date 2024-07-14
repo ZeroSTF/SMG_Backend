@@ -41,16 +41,17 @@ public class VenteService implements IVenteService {
     @Override
     public List<Vente> retrieveAllLignesByPiedFact(String nFact, String codeCl) {
         List<RedFact> redFactList = factureService.retrieveAllRedFactByPiedFact(nFact);
-        //for each redfact, get the corresponding vte
+        List <Vente> returnList = new java.util.ArrayList<>(List.of());
         for (RedFact redFact : redFactList) {
             List<Vente> venteList = venteRepository.findByNbonAndCodecl(redFact.getNbon(), codeCl);
+            log.info("venteList: " + venteList);
             if (!venteList.isEmpty()) {
                 for (Vente vente : venteList) {
-                    vente.setInstance(articleRepository.findFirstByReference(vente.getReference()).getDesignation()); //todo fix
+                    vente.setInstance(articleRepository.findByReferenceAndFrn(vente.getReference(), vente.getFab()).getDesignation()); //todo fix
                 }
-                return venteList;
+                returnList.addAll(venteList);
             }
         }
-        return List.of();
+        return returnList;
     }
 }

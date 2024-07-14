@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
 import tn.zeros.smg.entities.Confirmation;
+import tn.zeros.smg.entities.Notification;
 import tn.zeros.smg.entities.Role;
 import tn.zeros.smg.entities.User;
 import tn.zeros.smg.entities.enums.UStatus;
@@ -22,6 +23,7 @@ import tn.zeros.smg.repositories.ConfirmationRepository;
 import tn.zeros.smg.repositories.RoleRepository;
 import tn.zeros.smg.repositories.UserRepository;
 import tn.zeros.smg.services.IServices.IEmailService;
+import tn.zeros.smg.services.IServices.INotificationService;
 import tn.zeros.smg.services.IServices.ITokenService;
 import tn.zeros.smg.services.IServices.IUserService;
 
@@ -38,6 +40,7 @@ public class UserService implements IUserService {
 
     private final IEmailService emailService;
     private final ITokenService tokenService;
+    private final INotificationService notificationService;
 
     @Lazy
     private final AuthenticationManager authenticationManager;
@@ -135,6 +138,12 @@ public class UserService implements IUserService {
         User user = userRepository.findByEmail(confirmation.getUser().getEmail()).get();
         user.setStatus(UStatus.Pending);
         confirmationRepository.delete(confirmation);
+        //notify all admins that a new user is pending
+        List<User> admins = userRepository.findAdminUsers();
+        admins.forEach(admin -> {
+            Notification N= Notification.builder().title("Nouveau utilisateur en attente").description("Un nouveau utilisateur est en attente de confirmation").useRouter(true).link("/dashboards/clients/"+user.getId()).user(admin).build();
+            notificationService.addNotification(N);
+        });
         userRepository.save(user);
         return Boolean.TRUE;
     }
