@@ -19,5 +19,6 @@ public class RegistrationDTO {
     String codetva;
     String tel1;
     String tel2;
-    //String photoMat;
+    String fax;
+    String idfiscal;
 }

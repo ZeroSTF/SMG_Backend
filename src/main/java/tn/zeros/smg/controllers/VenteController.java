@@ -42,9 +42,9 @@ public class VenteController {
     public List<PiedVte> getFacturesCurrent() {
         ////////////retrieving current user/////////////////////////////////
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentEmail = authentication.getName();
+        String currentCode = authentication.getName();
         ////////////////////////////////////////////////////////////////////
-        String codeCl = userService.loadUserByEmail(currentEmail).getCode();
-        return venteService.retrieveVteByClient(codeCl);
+        
+        return venteService.retrieveVteByClient(currentCode);
     }
 }

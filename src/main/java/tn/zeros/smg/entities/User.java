@@ -69,6 +69,7 @@ public class User implements Serializable, UserDetails {
     Set<Role> role;
     @Enumerated(EnumType.STRING)
     private UStatus status;
+    String photomat;
 
     // UserDetails methods
 
@@ -115,7 +116,7 @@ public class User implements Serializable, UserDetails {
     @JsonIgnore
     public boolean isEnabled() { return true; }
 
-    public User(String email, String password, String nom, String adresse, String codetva, String tel1, String tel2) {
+    public User(String email, String password, String nom, String adresse, String codetva, String tel1, String tel2, String fax, String idfiscal) {
         this.nom = nom;
         this.email = email;
         this.password = password;
@@ -123,6 +124,8 @@ public class User implements Serializable, UserDetails {
         this.codetva = codetva;
         this.tel1 = tel1;
         this.tel2 = tel2;
+        this.fax = fax;
+        this.idfiscal = idfiscal;
         this.SOLDE="00";
         // Set default values for other fields
         this.role = new HashSet<>(); // Initialize empty set for roles

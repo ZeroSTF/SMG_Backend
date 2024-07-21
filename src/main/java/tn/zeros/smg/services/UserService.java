@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
 import tn.zeros.smg.entities.Confirmation;
 import tn.zeros.smg.entities.Notification;
@@ -27,7 +28,11 @@ import tn.zeros.smg.services.IServices.INotificationService;
 import tn.zeros.smg.services.IServices.ITokenService;
 import tn.zeros.smg.services.IServices.IUserService;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -45,6 +50,8 @@ public class UserService implements IUserService {
     @Lazy
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder encoder;
+
+    public static final String UPLOAD_DIR = "uploads/matricules/";
 
     //Authentication
     @Override
@@ -67,18 +74,18 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public LoginResponseDTO login(String email, String password) {
-        // Find the user by email
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new InvalidCredentialsException("Wrong email or password"));
+    public LoginResponseDTO login(String code, String password) {
+        // Find the user by code
+        User user = userRepository.findByCode(code)
+                .orElseThrow(() -> new InvalidCredentialsException("Wrong code or password"));
 
         // Check if the password matches
         if (!encoder.matches(password, user.getPassword()) || !user.getStatus().equals(UStatus.Active)) {
-            throw new InvalidCredentialsException("Wrong email or password");
+            throw new InvalidCredentialsException("Wrong code or password");
         }
 
         // Generate JWT token
-        Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(code, password));
         String token = tokenService.generateJwt(auth);
 
         String role = "user";
@@ -133,12 +140,14 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public Boolean verifyToken(String token) {
         Confirmation confirmation = confirmationRepository.findByToken(token);
-        User user = userRepository.findByEmail(confirmation.getUser().getEmail()).get();
+        User user = userRepository.findById(confirmation.getUser().getId()).get();
         user.setStatus(UStatus.Pending);
         confirmationRepository.delete(confirmation);
         //notify all admins that a new user is pending
+        log.info("notifying all admins");
         List<User> admins = userRepository.findAdminUsers();
         admins.forEach(admin -> {
             Notification N= Notification.builder().title("Nouveau utilisateur en attente").description("Un nouveau utilisateur est en attente de confirmation").useRouter(true).link("/dashboards/clients/"+user.getId()).user(admin).build();
@@ -156,11 +165,6 @@ public class UserService implements IUserService {
     @Override
     public User retrieveUser(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
-    }
-
-    @Override
-    public User retrieveUserByCode(String code) {
-        return userRepository.findByCode(code).orElseThrow(() -> new EntityNotFoundException("User not found with code: " + code));
     }
 
     @Override
@@ -184,6 +188,7 @@ public class UserService implements IUserService {
     public void removeUser(Long id) throws IOException {
         User user = userRepository.findById(id).orElse(null);
         if(user != null){
+            this.deletePhoto(user.getPhotomat());
             Confirmation c = confirmationRepository.findConfirmationByUser(user);
             if(c != null){
                 confirmationRepository.delete(c);
@@ -215,8 +220,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User loadUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+    public User loadUserByCode(String code) {
+        return userRepository.findByCode(code).orElseThrow(() -> new EntityNotFoundException("User not found with code: " + code));
     }
 
     @Override
@@ -235,4 +240,53 @@ public class UserService implements IUserService {
         }
         return userRepository.findByNomContainingIgnoreCaseOrderByNom(nom);
     }
+
+    @Override
+    public String savePhoto(MultipartFile file) throws IOException {
+        // Create a unique file name to prevent conflicts
+        String fileName = generateUniqueFileName(file.getOriginalFilename());
+        // Create the directory if it doesn't exist
+        createUploadDirectoryIfNotExist();
+        // Get the file path to save the image
+        String filePath = UPLOAD_DIR + fileName;
+        // Save the file to the specified location
+        Path destPath = Paths.get(filePath);
+        Files.copy(file.getInputStream(), destPath);
+
+        return fileName;
+    }
+    @Override
+    public void deletePhoto(String fileName) throws IOException {
+        // Construct the file path
+        String filePath = UPLOAD_DIR + fileName;
+
+        // Create a Path object for the file
+        Path path = Paths.get(filePath);
+
+        // Check if the file exists
+        if (Files.exists(path)) {
+            // Delete the file
+            Files.delete(path);
+            System.out.println("Profile picture deleted successfully: " + fileName);
+        } else {
+            // File doesn't exist
+            System.out.println("Profile picture not found: " + fileName);
+        }
+    }
+
+    // Helper method to generate a unique file name
+    private String generateUniqueFileName(String originalFileName) {
+        String uuid = UUID.randomUUID().toString();
+        String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        return uuid + extension;
+    }
+
+    // Helper method to create upload directory if it doesn't exist
+    private void createUploadDirectoryIfNotExist() {
+        File directory = new File(UPLOAD_DIR);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+    }
+
 }

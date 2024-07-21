@@ -27,7 +27,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<Boolean> registerUser(@RequestBody RegistrationDTO body){
         log.info(body.toString());
-        User user = new User(body.getEmail(), body.getPassword(), body.getNom(), body.getAdresse(), body.getCodetva(), body.getTel1(), body.getTel2());
+        User user = new User(body.getEmail(), body.getPassword(), body.getNom(), body.getAdresse(), body.getCodetva(), body.getTel1(), body.getTel2(), body.getFax(), body.getIdfiscal());
         User registeredUser = userService.registerUser(user);
         if (registeredUser != null) {
             return ResponseEntity.ok(true);
@@ -39,10 +39,10 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginDTO body) {
         try {
-            LoginResponseDTO response = userService.login(body.getEmail(), body.getPassword());
+            LoginResponseDTO response = userService.login(body.getCode(), body.getPassword());
             return ResponseEntity.ok(response);
         } catch (InvalidCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Wrong email or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Wrong code or password");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
         }

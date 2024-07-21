@@ -1,11 +1,13 @@
 package tn.zeros.smg.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tn.zeros.smg.controllers.DTO.CurrentDTO;
 import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
 import tn.zeros.smg.entities.Role;
@@ -54,8 +56,8 @@ public class UserController {
         try {
             ////////////retrieving current user/////////////////////////////////
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentEmail = authentication.getName();
-            currentUser = userService.loadUserByEmail(currentEmail);
+            String currentCode = authentication.getName();
+            currentUser = userService.loadUserByCode(currentCode);
             ////////////////////////////////////////////////////////////////////
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -80,8 +82,8 @@ public class UserController {
         try {
             ////////////retrieving current user/////////////////////////////////
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentEmail = authentication.getName();
-            currentUser = userService.loadUserByEmail(currentEmail);
+            String currentCode = authentication.getName();
+            currentUser = userService.loadUserByCode(currentCode);
             ////////////////////////////////////////////////////////////////////
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -93,6 +95,33 @@ public class UserController {
     public ResponseEntity<?> chercherUser(@RequestParam(value = "query", required = false) String query) {
         List<User> users = userService.chercherUser(query);
         return ResponseEntity.ok().body(users);
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> confirmUserAccount(@RequestParam("token") String token) {
+        Boolean isSuccess = userService.verifyToken(token);
+        if (isSuccess) {
+            return ResponseEntity.ok("Email Confirmé avec succés.");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid or expired token.");
+        }
+    }
+
+    @PostMapping("/upload/{user-id}")
+    public ResponseEntity<String> uploadPhoto(@RequestParam("file") MultipartFile file, @PathVariable("user-id") Long userId) {
+        // Check if file is empty
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("Please upload a file");
+        }
+        try {
+            User user=userService.retrieveUser(userId);
+            String fileName = userService.savePhoto(file);
+            user.setPhotomat(fileName);
+            userService.modifyUser(user);
+            return ResponseEntity.ok().body("Profile picture uploaded successfully");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
 }

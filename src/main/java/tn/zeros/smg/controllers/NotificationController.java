@@ -54,9 +54,10 @@ public class NotificationController {
         try {
             ////////////retrieving current user/////////////////////////////////
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentEmail = authentication.getName();
-            currentUser = userService.loadUserByEmail(currentEmail);
+            String currentCode = authentication.getName();
+            currentUser = userService.loadUserByCode(currentCode);
             ////////////////////////////////////////////////////////////////////
+
         }catch(Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage()) ;
         }
@@ -69,8 +70,8 @@ public class NotificationController {
         try {
             ////////////retrieving current user/////////////////////////////////
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentEmail = authentication.getName();
-            currentUser = userService.loadUserByEmail(currentEmail);
+            String currentCode = authentication.getName();
+            currentUser = userService.loadUserByCode(currentCode);
             ////////////////////////////////////////////////////////////////////
         }catch(Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage()) ;
@@ -85,8 +86,8 @@ public class NotificationController {
         try {
             ////////////retrieving current user/////////////////////////////////
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentEmail = authentication.getName();
-            currentUser = userService.loadUserByEmail(currentEmail);
+            String currentCode = authentication.getName();
+            currentUser = userService.loadUserByCode(currentCode);
             ////////////////////////////////////////////////////////////////////
         }catch(Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage()) ;

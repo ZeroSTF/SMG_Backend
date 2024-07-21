@@ -8,6 +8,6 @@ import lombok.*;
 @Setter
 @ToString
 public class LoginDTO {
-    private String email;
+    private String code;
     private String password;
 }

@@ -34,17 +34,16 @@ public class FactureController {
     public List<PiedFact> getFacturesCurrent() {
         ////////////retrieving current user/////////////////////////////////
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentEmail = authentication.getName();
+        String currentCode = authentication.getName();
         ////////////////////////////////////////////////////////////////////
-        String codeCl = userService.loadUserByEmail(currentEmail).getCode();
-        return factureService.retrieveFactByClient(codeCl);
+        return factureService.retrieveFactByClient(currentCode);
     }
 
     @GetMapping("/getDetails/{nFact}")
     public ResponseEntity<DetailsFactureDTO> getDetailsFacture(@PathVariable String nFact) {
         PiedFact piedFact = factureService.retrieveFacture(nFact);
         List<Vente> lignes = venteService.retrieveAllLignesByPiedFact(nFact, piedFact.getCodecl());
-        User client = userService.retrieveUserByCode(piedFact.getCodecl());
+        User client = userService.loadUserByCode(piedFact.getCodecl());
         DetailsFactureDTO detailsFactureDTO = new DetailsFactureDTO(piedFact, lignes, client);
         return ResponseEntity.ok(detailsFactureDTO);
     }

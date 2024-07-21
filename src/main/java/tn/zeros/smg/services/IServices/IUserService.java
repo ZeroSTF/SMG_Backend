@@ -1,5 +1,6 @@
 package tn.zeros.smg.services.IServices;
 
+import org.springframework.web.multipart.MultipartFile;
 import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
 import tn.zeros.smg.entities.User;
 
@@ -9,7 +10,7 @@ import java.util.List;
 public interface IUserService {
     //AUTHENTICATION
     User registerUser(User user);
-    LoginResponseDTO login(String email, String password);
+    LoginResponseDTO login(String code, String password);
     LoginResponseDTO login(String token);
     void logout();
     Boolean verifyToken(String token);
@@ -17,11 +18,12 @@ public interface IUserService {
     //CRUD
     List<User> retrieveAllUsers();
     User retrieveUser(Long id);
-    User retrieveUserByCode(String code);
     User addUser(User c);
     void removeUser(Long id) throws IOException;
     User modifyUser(User User);
-    User loadUserByEmail(String email);
+    User loadUserByCode(String code);
     void confirmNewEmail(User user);
     List<User> chercherUser(String nom);
+    String savePhoto(MultipartFile file) throws IOException;
+    void deletePhoto(String fileName) throws IOException;
 }
