@@ -78,11 +78,11 @@ public class User implements Serializable, UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(email, user.email);
+        return Objects.equals(code, user.getCode());
     }
     @Override
     public int hashCode() {
-        return Objects.hash(email);
+        return Objects.hash(code);
     }
     @Override
     @JsonIgnore
@@ -91,7 +91,7 @@ public class User implements Serializable, UserDetails {
     }
     @Override
     public String getUsername() {
-        return this.email;
+        return this.code;
     }
 
     @Override

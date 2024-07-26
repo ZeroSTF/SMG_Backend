@@ -114,8 +114,8 @@ public class UserService implements IUserService {
         }
         //login with token
         Authentication auth = new UsernamePasswordAuthenticationToken(token, token);
-        String email = tokenService.decodeJwt(token).getSubject();
-        User user = userRepository.findByEmail(email)
+        String code = tokenService.decodeJwt(token).getSubject();
+        User user = userRepository.findByCode(code)
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid token"));
         if(!user.getStatus().equals(UStatus.Active))
             return null;

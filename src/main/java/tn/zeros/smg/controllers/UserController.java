@@ -1,6 +1,7 @@
 package tn.zeros.smg.controllers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @RequestMapping("/user")
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
+@Slf4j
 public class UserController {
     private final IUserService userService;
     @GetMapping("/getAll")
@@ -57,6 +59,7 @@ public class UserController {
             ////////////retrieving current user/////////////////////////////////
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String currentCode = authentication.getName();
+            log.info("currentCode: " + currentCode);
             currentUser = userService.loadUserByCode(currentCode);
             ////////////////////////////////////////////////////////////////////
         } catch (Exception e) {
