@@ -2,8 +2,11 @@ package tn.zeros.smg.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import tn.zeros.smg.controllers.DTO.ArticleDTO;
 import tn.zeros.smg.entities.Article;
+import tn.zeros.smg.entities.User;
 import tn.zeros.smg.repositories.ArticleRepository;
 import tn.zeros.smg.services.IServices.IArticleService;
 
@@ -16,8 +19,8 @@ public class ArticleService implements IArticleService {
     private final ArticleRepository articleRepository;
 
     @Override
-    public List<Article> retrieveAllArticles() {
-        return articleRepository.findAll();
+    public List<ArticleDTO> retrieveAllArticles() {
+        return articleRepository.findAllProjectedBy(Sort.by(Sort.Direction.ASC, "designation"));
     }
 
     @Override
@@ -38,6 +41,14 @@ public class ArticleService implements IArticleService {
     @Override
     public Article modifyArticle(Article c) {
         return articleRepository.save(c);
+    }
+
+    @Override
+    public List<Article> chercherArticle(String designation) {
+        if(designation == null || designation.isEmpty()){
+            return articleRepository.findAll(Sort.by(Sort.Direction.ASC, "designation"));
+        }
+        return articleRepository.findByDesignationContainingIgnoreCaseOrderByDesignation(designation);
     }
 
 }

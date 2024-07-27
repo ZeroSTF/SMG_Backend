@@ -1,8 +1,11 @@
 package tn.zeros.smg.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.zeros.smg.controllers.DTO.ArticleDTO;
 import tn.zeros.smg.entities.Article;
+import tn.zeros.smg.entities.User;
 import tn.zeros.smg.services.IServices.IArticleService;
 
 import java.util.List;
@@ -15,7 +18,7 @@ public class ArticleController {
     private final IArticleService articleService;
 
     @GetMapping("/getAll")
-    public List<Article> getUsers() {
+    public List<ArticleDTO> getArticles() {
         return articleService.retrieveAllArticles();
     }
 
@@ -37,5 +40,11 @@ public class ArticleController {
     @PutMapping("/update")
     public Article modifyArticle(@RequestBody Article c) {
         return articleService.modifyArticle(c);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> chercherArticle(@RequestParam(value = "query", required = false) String query) {
+        List<Article> articles = articleService.chercherArticle(query);
+        return ResponseEntity.ok().body(articles);
     }
 }

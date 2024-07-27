@@ -2,6 +2,7 @@ package tn.zeros.smg.services.IServices;
 
 import org.springframework.web.multipart.MultipartFile;
 import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
+import tn.zeros.smg.entities.Panier;
 import tn.zeros.smg.entities.User;
 
 import java.io.IOException;
@@ -26,4 +27,5 @@ public interface IUserService {
     List<User> chercherUser(String nom);
     String savePhoto(MultipartFile file) throws IOException;
     void deletePhoto(String fileName) throws IOException;
+    Panier getUserPanier(Long userId);
 }

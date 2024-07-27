@@ -14,13 +14,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
-import tn.zeros.smg.entities.Confirmation;
-import tn.zeros.smg.entities.Notification;
-import tn.zeros.smg.entities.Role;
-import tn.zeros.smg.entities.User;
+import tn.zeros.smg.entities.*;
 import tn.zeros.smg.entities.enums.UStatus;
 import tn.zeros.smg.exceptions.InvalidCredentialsException;
 import tn.zeros.smg.repositories.ConfirmationRepository;
+import tn.zeros.smg.repositories.PanierRepository;
 import tn.zeros.smg.repositories.RoleRepository;
 import tn.zeros.smg.repositories.UserRepository;
 import tn.zeros.smg.services.IServices.IEmailService;
@@ -42,6 +40,7 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ConfirmationRepository confirmationRepository;
+    private final PanierRepository panierRepository;
 
     private final IEmailService emailService;
     private final ITokenService tokenService;
@@ -69,6 +68,7 @@ public class UserService implements IUserService {
         user.setStatus(UStatus.Unconfirmed);
         user.setRole(authorities);
         userRepository.save(user);
+        ensureUserHasPanier(user);
         confirmNewEmail(user);
         return user;
     }
@@ -287,6 +287,30 @@ public class UserService implements IUserService {
         if (!directory.exists()) {
             directory.mkdirs();
         }
+    }
+
+    @Transactional
+    public void ensureUserHasPanier(User user) {
+        if (user.getPanier() == null) {
+            Panier panier = new Panier();
+            panier.setUser(user);
+            user.setPanier(panier);
+            userRepository.save(user);
+        }
+    }
+
+    @Transactional
+    public void ensureAllUsersHavePaniers() {
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            ensureUserHasPanier(user);
+        }
+    }
+
+    @Override
+    public Panier getUserPanier(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        return user.getPanier();
     }
 
 }

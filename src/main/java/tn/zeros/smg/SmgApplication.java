@@ -12,6 +12,7 @@ import tn.zeros.smg.entities.Role;
 import tn.zeros.smg.entities.enums.TypeRole;
 import tn.zeros.smg.repositories.RoleRepository;
 import tn.zeros.smg.repositories.UserRepository;
+import tn.zeros.smg.services.UserService;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,7 +28,7 @@ public class SmgApplication {
 	}
 	/////////////////////////////////////// Roles to be added by default on startup ///////////////////////////////////////////////////////
 	@Bean
-	CommandLineRunner run(RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder encoder){
+	CommandLineRunner run(RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder encoder, UserService userService){
 		return args -> {
 			//set every user's password in the database to "password" for testing purposes
 			/*userRepository.findAll().forEach(user -> {
@@ -43,6 +44,9 @@ public class SmgApplication {
 				user.setRole(authorities);
 				userRepository.save(user);
 			});*/
+
+			// ensure all users have panier
+			//userService.ensureAllUsersHavePaniers();
 
 			if(!roleRepository.findByType(TypeRole.ADMIN).isPresent())
 				roleRepository.save(new Role(1L, "ADMIN", TypeRole.ADMIN));

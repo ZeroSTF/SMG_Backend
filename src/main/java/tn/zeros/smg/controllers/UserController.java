@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.zeros.smg.controllers.DTO.CurrentDTO;
 import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
+import tn.zeros.smg.entities.Panier;
 import tn.zeros.smg.entities.Role;
 import tn.zeros.smg.entities.User;
 import tn.zeros.smg.services.IServices.IUserService;
@@ -125,6 +126,23 @@ public class UserController {
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/{userId}/panier")
+    public ResponseEntity<Panier> getUserPanier(@PathVariable Long userId) {
+        Panier panier = userService.getUserPanier(userId);
+        return ResponseEntity.ok(panier);
+    }
+
+    @GetMapping("/current/panier-id")
+    public ResponseEntity<Long> getCurrentUserPanierId() {
+        User currentUser;
+            ////////////retrieving current user/////////////////////////////////
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String currentCode = authentication.getName();
+            currentUser = userService.loadUserByCode(currentCode);
+            ////////////////////////////////////////////////////////////////////
+        return ResponseEntity.ok(currentUser.getPanier().getId());
     }
 
 }

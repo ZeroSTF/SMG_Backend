@@ -1,13 +1,12 @@
 package tn.zeros.smg.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -58,4 +57,7 @@ public class Article implements Serializable {
     String CBARRE;
     int QCART;
     int STKMAGP;
+
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<PanierArticle> panierArticles = new HashSet<>();
 }
