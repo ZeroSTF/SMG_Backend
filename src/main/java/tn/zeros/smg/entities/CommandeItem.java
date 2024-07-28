@@ -1,5 +1,6 @@
 package tn.zeros.smg.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +21,7 @@ public class CommandeItem implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "commande_id")
+    @JsonIgnore
     Commande commande;
 
     @ManyToOne
