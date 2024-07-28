@@ -3,7 +3,7 @@ package tn.zeros.smg.services;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tn.zeros.smg.entities.*;
 import tn.zeros.smg.entities.enums.CommandeStatus;
@@ -13,11 +13,15 @@ import tn.zeros.smg.repositories.PanierArticleRepository;
 import tn.zeros.smg.repositories.PanierRepository;
 import tn.zeros.smg.services.IServices.IPanierService;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PanierService implements IPanierService {
     private final PanierRepository panierRepository;
     private final ArticleRepository articleRepository;
@@ -48,7 +52,7 @@ public class PanierService implements IPanierService {
 
     @Override
     public List<PanierArticle> getPanierContents(Long panierId) {
-        return panierArticleRepository.findByPanierId(panierId);
+        return panierArticleRepository.findAllByPanierId(panierId);
     }
 
     @Override
@@ -77,18 +81,27 @@ public class PanierService implements IPanierService {
             }
 
             // Update stock
-            article.setSTOCK(article.getSTOCK() - quantity);
-            articleRepository.save(article);
+            //article.setSTOCK(article.getSTOCK() - quantity);
+            //articleRepository.save(article);
 
             // Create order item
             CommandeItem commandeItem = new CommandeItem();
             commandeItem.setCommande(commande);
             commandeItem.setArticle(article);
             commandeItem.setQuantity(quantity);
-            commandeItem.setPrice(Double.parseDouble(article.getPAHT())); // Assuming PAHT is the price
+            double price = 0;
+            try{
+                NumberFormat format = NumberFormat.getInstance(Locale.FRANCE);
+                Number number = format.parse(article.getPVHT());
+                price= number.doubleValue();
+            }catch (ParseException e) {
+                e.printStackTrace();
+                price= Double.parseDouble(article.getPVHT());
+            }
+            commandeItem.setPrice(price);
             commande.getCommandeItems().add(commandeItem);
 
-            total += quantity * Double.parseDouble(article.getPAHT());
+            total += quantity * price;
         }
 
         commande.setTotal(total);
@@ -99,5 +112,15 @@ public class PanierService implements IPanierService {
         panierRepository.save(panier);
 
         return savedCommande;
+    }
+
+    @Override
+    public PanierArticle updateQuantity(Long panierId, Long articleId, int quantity) {
+        PanierArticleKey key = new PanierArticleKey(panierId, articleId);
+        PanierArticle panierArticle = panierArticleRepository.findById(key)
+                .orElseThrow(() -> new EntityNotFoundException("Article not found in panier"));
+
+        panierArticle.setQuantity(quantity);
+        return panierArticleRepository.save(panierArticle);
     }
 }

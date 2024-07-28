@@ -1,5 +1,6 @@
 package tn.zeros.smg.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -21,6 +22,7 @@ public class PanierArticle implements Serializable {
     @ManyToOne
     @MapsId("panierId")
     @JoinColumn(name = "panier_id")
+    @JsonBackReference
     Panier panier;
 
     @ManyToOne

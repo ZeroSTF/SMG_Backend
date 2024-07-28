@@ -1,5 +1,6 @@
 package tn.zeros.smg.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -24,6 +25,7 @@ public class Commande implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     User user;
 
     LocalDateTime commandeDate;
@@ -32,5 +34,6 @@ public class Commande implements Serializable {
     double total;
 
     @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     List<CommandeItem> commandeItems = new ArrayList<>();
 }

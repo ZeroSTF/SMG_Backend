@@ -7,6 +7,6 @@ public interface ArticleDTO {
     Long getId();
     String getDesignation();
     String getFrn();
-    String getPAHT();
+    String getPVHT();
     int getSTOCK();
 }

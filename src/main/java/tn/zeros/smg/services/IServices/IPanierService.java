@@ -10,4 +10,5 @@ public interface IPanierService {
     void removeArticleFromPanier(Long panierId, Long articleId);
     List<PanierArticle> getPanierContents(Long panierId);
     Commande checkout(Long panierId);
+    PanierArticle updateQuantity(Long panierId, Long articleId, int quantity);
 }

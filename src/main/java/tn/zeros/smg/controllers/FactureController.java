@@ -32,7 +32,7 @@ public class FactureController {
 
     @GetMapping("/getAllCurrent")
     public List<PiedFact> getFacturesCurrent() {
-        ////////////retrieving current user/////////////////////////////////
+        ////////////retrieving current code/////////////////////////////////
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentCode = authentication.getName();
         ////////////////////////////////////////////////////////////////////

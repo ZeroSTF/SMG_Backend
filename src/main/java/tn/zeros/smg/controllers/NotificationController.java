@@ -51,31 +51,14 @@ public class NotificationController {
     @GetMapping("/getUnread")
     public ResponseEntity<?> getUnread() {
         User currentUser;
-        try {
-            ////////////retrieving current user/////////////////////////////////
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentCode = authentication.getName();
-            currentUser = userService.loadUserByCode(currentCode);
-            ////////////////////////////////////////////////////////////////////
-
-        }catch(Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage()) ;
-        }
+        currentUser = userService.getCurrentUser();
         return ResponseEntity.ok().body(notificationService.getUnread(currentUser));
     }
 
     @GetMapping("/getAllByUser")
     public ResponseEntity<?> getAllByUser() {
         User currentUser;
-        try {
-            ////////////retrieving current user/////////////////////////////////
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentCode = authentication.getName();
-            currentUser = userService.loadUserByCode(currentCode);
-            ////////////////////////////////////////////////////////////////////
-        }catch(Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage()) ;
-        }
+        currentUser = userService.getCurrentUser();
         return ResponseEntity.ok().body(notificationService.getByUser(currentUser));
     }
 
@@ -83,15 +66,7 @@ public class NotificationController {
     @Transactional
     public ResponseEntity<?> markAllAsRead() {
         User currentUser;
-        try {
-            ////////////retrieving current user/////////////////////////////////
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentCode = authentication.getName();
-            currentUser = userService.loadUserByCode(currentCode);
-            ////////////////////////////////////////////////////////////////////
-        }catch(Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage()) ;
-        }
+        currentUser = userService.getCurrentUser();
         List<Notification> notifications = notificationService.getUnread(currentUser);
         for(Notification n : notifications) {
             n.setRead(true);

@@ -137,11 +137,7 @@ public class UserController {
     @GetMapping("/current/panier-id")
     public ResponseEntity<Long> getCurrentUserPanierId() {
         User currentUser;
-            ////////////retrieving current user/////////////////////////////////
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentCode = authentication.getName();
-            currentUser = userService.loadUserByCode(currentCode);
-            ////////////////////////////////////////////////////////////////////
+        currentUser = userService.getCurrentUser();
         return ResponseEntity.ok(currentUser.getPanier().getId());
     }
 

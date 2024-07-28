@@ -313,4 +313,11 @@ public class UserService implements IUserService {
         return user.getPanier();
     }
 
+    @Override
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentCode = authentication.getName();
+        return userRepository.findByCode(currentCode).orElseThrow(() -> new EntityNotFoundException("User not found with code: " + currentCode));
+    }
 }
+

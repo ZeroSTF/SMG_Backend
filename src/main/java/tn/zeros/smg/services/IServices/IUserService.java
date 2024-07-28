@@ -15,6 +15,7 @@ public interface IUserService {
     LoginResponseDTO login(String token);
     void logout();
     Boolean verifyToken(String token);
+    User getCurrentUser();
 
     //CRUD
     List<User> retrieveAllUsers();

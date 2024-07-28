@@ -1,5 +1,6 @@
 package tn.zeros.smg.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -14,7 +15,6 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Article implements Serializable {
     @Id
@@ -58,6 +58,12 @@ public class Article implements Serializable {
     int QCART;
     int STKMAGP;
 
+    @Override
+    public String toString(){
+        return designation;
+    }
+
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<PanierArticle> panierArticles = new HashSet<>();
 }

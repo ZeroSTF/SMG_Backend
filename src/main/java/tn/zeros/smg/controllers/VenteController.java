@@ -40,7 +40,7 @@ public class VenteController {
 
     @GetMapping("/getAllCurrent")
     public List<PiedVte> getFacturesCurrent() {
-        ////////////retrieving current user/////////////////////////////////
+        ////////////retrieving current code/////////////////////////////////
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentCode = authentication.getName();
         ////////////////////////////////////////////////////////////////////

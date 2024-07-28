@@ -11,5 +11,5 @@ import java.util.List;
 public interface PanierArticleRepository extends JpaRepository<PanierArticle, PanierArticleKey> {
     List<PanierArticle> findByPanier(Panier panier);
     List<PanierArticle> findByArticle(Article article);
-    List<PanierArticle> findByPanierId(Long panierId);
+    List<PanierArticle> findAllByPanierId(Long panierId);
 }
