@@ -29,4 +29,5 @@ public interface IUserService {
     String savePhoto(MultipartFile file) throws IOException;
     void deletePhoto(String fileName) throws IOException;
     Panier getUserPanier(Long userId);
+    String soldeSum();
 }

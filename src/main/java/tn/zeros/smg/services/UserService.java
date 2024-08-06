@@ -314,6 +314,15 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public String soldeSum() {
+        List<String> soldes = userRepository.findSoldes();
+        //ignore empty strings
+        soldes.removeIf(String::isEmpty);
+        double sum = soldes.stream().mapToDouble(s -> Double.parseDouble(s.replaceAll("€", "").replaceAll("-", "").replaceAll(",", ".").replaceAll(" ", ""))).sum();
+        return String.format("%.2f", sum);
+    }
+
+    @Override
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentCode = authentication.getName();

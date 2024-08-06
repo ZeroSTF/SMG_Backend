@@ -11,6 +11,7 @@ import tn.zeros.smg.repositories.ArticleRepository;
 import tn.zeros.smg.services.IServices.IArticleService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -44,11 +45,19 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
-    public List<Article> chercherArticle(String designation) {
-        if(designation == null || designation.isEmpty()){
-            return articleRepository.findAll(Sort.by(Sort.Direction.ASC, "designation"));
+    public List<Article> chercherArticle(String reference) {
+        if(reference == null || reference.isEmpty()){
+            return null;
         }
-        return articleRepository.findByDesignationContainingIgnoreCaseOrderByDesignation(designation);
+        List<Article> articles= articleRepository.findByReferenceStartingWithIgnoreCase(reference);
+        articles.removeIf(article -> article.getReference().length() < reference.length() || article.getReference().length() > reference.length()+1);
+        return articles;
+    }
+
+    @Override
+    public List<Article> advancedSearchArticles(String designation, String frn) {
+        List<Article> articles = articleRepository.findByDesignationAndFrn(designation, frn);
+        return articles.stream().limit(3).collect(Collectors.toList());
     }
 
 }

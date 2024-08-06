@@ -12,5 +12,6 @@ public interface IArticleService {
     Article addArticle(Article c);
     void removeArticle(Long id);
     Article modifyArticle(Article Article);
-    List<Article> chercherArticle(String designation);
+    List<Article> chercherArticle(String reference);
+    List<Article> advancedSearchArticles(String designation, String frn);
 }

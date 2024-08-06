@@ -8,4 +8,7 @@ import java.util.List;
 
 public interface CommandeRepository extends JpaRepository<Commande,Long> {
     List<Commande> findByUser(User user);
+    Long countAllBy();
+    Long countAllByUser(User user);
+
 }

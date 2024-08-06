@@ -47,4 +47,12 @@ public class ArticleController {
         List<Article> articles = articleService.chercherArticle(query);
         return ResponseEntity.ok().body(articles);
     }
+
+    @GetMapping("/advanced-search")
+    public ResponseEntity<?> advancedSearchArticles(
+            @RequestParam(value = "designation", required = false) String designation,
+            @RequestParam(value = "frn", required = false) String frn) {
+        List<Article> articles = articleService.advancedSearchArticles(designation, frn);
+        return ResponseEntity.ok().body(articles);
+    }
 }

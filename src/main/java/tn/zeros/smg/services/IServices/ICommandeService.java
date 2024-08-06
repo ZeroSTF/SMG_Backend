@@ -9,4 +9,5 @@ public interface ICommandeService {
     Commande getCommandeById(Long commandeId);
     List<Commande> getUserCommandes(Long userId);
     Commande updateCommandeStatus(Long commandeId, CommandeStatus status);
+    Long countCommandes();
 }
