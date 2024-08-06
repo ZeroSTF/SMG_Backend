@@ -12,7 +12,6 @@ import java.util.List;
 
 public interface ArticleRepository extends JpaRepository<Article, Long> {
     Article findByReferenceAndFrn(String reference, String frn);
-    List<Article> findByDesignationContainingIgnoreCaseOrderByDesignation(String designation);
     List<Article> findByReferenceStartingWithIgnoreCase(String reference);
     List<Article> findAll(Sort sort);
     @Query("SELECT a.id as id, a.designation as designation, a.frn as frn, a.PVHT as PVHT, a.STOCK as STOCK FROM Article a WHERE a.STOCK > 0")
