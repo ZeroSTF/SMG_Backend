@@ -25,12 +25,11 @@ public class AuthenticationController {
     private final IUserService userService;
     private final ITokenService tokenService;
     @PostMapping("/register")
-    public ResponseEntity<Boolean> registerUser(@RequestBody RegistrationDTO body){
-        log.info(body.toString());
+    public ResponseEntity<?> registerUser(@RequestBody RegistrationDTO body){
         User user = new User(body.getEmail(), body.getPassword(), body.getNom(), body.getAdresse(), body.getCodetva(), body.getTel1(), body.getTel2(), body.getFax(), body.getIdfiscal());
         User registeredUser = userService.registerUser(user);
         if (registeredUser != null) {
-            return ResponseEntity.ok(true);
+            return ResponseEntity.ok(registeredUser);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
         }

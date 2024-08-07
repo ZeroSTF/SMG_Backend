@@ -1,19 +1,21 @@
 package tn.zeros.smg.controllers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.zeros.smg.controllers.DTO.ArticleDTO;
 import tn.zeros.smg.entities.Article;
-import tn.zeros.smg.entities.User;
 import tn.zeros.smg.services.IServices.IArticleService;
 
 import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/article")
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
+@Slf4j
 public class ArticleController {
     private final IArticleService articleService;
 
@@ -55,4 +57,16 @@ public class ArticleController {
         List<Article> articles = articleService.advancedSearchArticles(designation, frn);
         return ResponseEntity.ok().body(articles);
     }
+
+    /*@GetMapping("/getLogo/{fileName}")
+    public ResponseEntity<byte[]> getImage(@PathVariable String fileName) throws IOException {
+        String filePath = UPLOAD_DIR + fileName +".png";
+        File file = new File(filePath);
+        if (!file.exists()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Image not found");
+        }
+        byte[] imageData = Files.readAllBytes(file.toPath());
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
+                .body(imageData);
+    }*/
 }

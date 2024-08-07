@@ -6,7 +6,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import tn.zeros.smg.controllers.DTO.ArticleDTO;
 import tn.zeros.smg.entities.Article;
-import tn.zeros.smg.entities.User;
 import tn.zeros.smg.repositories.ArticleRepository;
 import tn.zeros.smg.services.IServices.IArticleService;
 
@@ -18,6 +17,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ArticleService implements IArticleService {
     private final ArticleRepository articleRepository;
+/*
+    public static final String UPLOAD_DIR = "uploads/fournisseurs/";
+*/
+
 
     @Override
     public List<ArticleDTO> retrieveAllArticles() {
@@ -50,13 +53,14 @@ public class ArticleService implements IArticleService {
             return null;
         }
         List<Article> articles= articleRepository.findByReferenceStartingWithIgnoreCase(reference);
-        articles.removeIf(article -> article.getReference().length() < reference.length() || article.getReference().length() > reference.length()+1);
+        articles.removeIf(article -> article.getReference().length() < reference.length() || article.getReference().length() > reference.length()+1 || article.getDesignation()==null || article.getPVHT()==null);
         return articles;
     }
 
     @Override
     public List<Article> advancedSearchArticles(String designation, String frn) {
         List<Article> articles = articleRepository.findByDesignationAndFrn(designation, frn);
+        articles.removeIf(article -> article.getDesignation()==null || article.getPVHT()==null);
         return articles.stream().limit(3).collect(Collectors.toList());
     }
 

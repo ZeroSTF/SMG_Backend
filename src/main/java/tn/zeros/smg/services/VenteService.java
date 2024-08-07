@@ -3,6 +3,7 @@ package tn.zeros.smg.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tn.zeros.smg.entities.Article;
 import tn.zeros.smg.entities.PiedVte;
 import tn.zeros.smg.entities.RedFact;
 import tn.zeros.smg.entities.Vente;
@@ -13,6 +14,8 @@ import tn.zeros.smg.services.IServices.IFactureService;
 import tn.zeros.smg.services.IServices.IVenteService;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -41,17 +44,31 @@ public class VenteService implements IVenteService {
     @Override
     public List<Vente> retrieveAllLignesByPiedFact(String nFact, String codeCl) {
         List<RedFact> redFactList = factureService.retrieveAllRedFactByPiedFact(nFact);
-        List <Vente> returnList = new java.util.ArrayList<>(List.of());
-        for (RedFact redFact : redFactList) {
-            List<Vente> venteList = venteRepository.findByNbonAndCodecl(redFact.getNbon(), codeCl);
-            log.info("venteList: " + venteList);
-            if (!venteList.isEmpty()) {
-                for (Vente vente : venteList) {
-                    vente.setInstance(articleRepository.findByReferenceAndFrn(vente.getReference(), vente.getFab()).getDesignation()); //todo fix
-                }
-                returnList.addAll(venteList);
+
+        // Collect all nbon values to fetch ventes in a single query
+        List<String> nbonList = redFactList.stream().map(RedFact::getNbon).collect(Collectors.toList());
+
+        // Fetch all ventes in one query
+        List<Vente> allVentes = venteRepository.findByNbonInAndCodecl(nbonList, codeCl);
+
+        // Collect all article references to fetch articles in a single query
+        List<String> references = allVentes.stream().map(Vente::getReference).collect(Collectors.toList());
+        List<String> frns = allVentes.stream().map(Vente::getFab).collect(Collectors.toList());
+
+        // Fetch all articles in one query
+        List<Article> articles = articleRepository.findByReferenceInAndFrnIn(references, frns);
+
+        // Create a map for quick lookup
+        Map<String, Article> articleMap = articles.stream()
+                .collect(Collectors.toMap(a -> a.getReference() + a.getFrn(), a -> a));
+
+        // Set instance for each vente
+        allVentes.forEach(vente -> {
+            Article article = articleMap.get(vente.getReference() + vente.getFab());
+            if (article != null) {
+                vente.setInstance(article.getDesignation());
             }
-        }
-        return returnList;
+        });
+        return allVentes;
     }
 }

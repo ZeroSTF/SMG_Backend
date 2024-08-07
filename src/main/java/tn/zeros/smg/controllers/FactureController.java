@@ -43,8 +43,7 @@ public class FactureController {
     public ResponseEntity<DetailsFactureDTO> getDetailsFacture(@PathVariable String nFact) {
         PiedFact piedFact = factureService.retrieveFacture(nFact);
         List<Vente> lignes = venteService.retrieveAllLignesByPiedFact(nFact, piedFact.getCodecl());
-        User client = userService.loadUserByCode(piedFact.getCodecl());
-        DetailsFactureDTO detailsFactureDTO = new DetailsFactureDTO(piedFact, lignes, client);
+        DetailsFactureDTO detailsFactureDTO = new DetailsFactureDTO(piedFact, lignes);
         return ResponseEntity.ok(detailsFactureDTO);
     }
 }

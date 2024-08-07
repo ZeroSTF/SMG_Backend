@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface VenteRepository extends JpaRepository<Vente, Long> {
     List<Vente> findByNbon(String nbon);
-    List<Vente> findByNbonAndCodecl(String nbon, String codecl);
+    List<Vente> findByNbonInAndCodecl(List<String> nbon, String codecl);
 }
