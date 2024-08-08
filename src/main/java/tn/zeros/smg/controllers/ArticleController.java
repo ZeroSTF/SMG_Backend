@@ -58,6 +58,13 @@ public class ArticleController {
         return ResponseEntity.ok().body(articles);
     }
 
+    @GetMapping("/equivalents")
+    public ResponseEntity<?> equivalents(
+            @RequestParam(value = "articleId", required = true) Long articleId) {
+        List<Article> equivalentArticles = articleService.getEquivalentArticles(articleId);
+        return ResponseEntity.ok().body(equivalentArticles);
+    }
+
     /*@GetMapping("/getLogo/{fileName}")
     public ResponseEntity<byte[]> getImage(@PathVariable String fileName) throws IOException {
         String filePath = UPLOAD_DIR + fileName +".png";

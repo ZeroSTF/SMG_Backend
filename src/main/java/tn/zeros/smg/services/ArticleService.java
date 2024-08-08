@@ -53,15 +53,23 @@ public class ArticleService implements IArticleService {
             return null;
         }
         List<Article> articles= articleRepository.findByReferenceStartingWithIgnoreCase(reference);
-        articles.removeIf(article -> article.getReference().length() < reference.length() || article.getReference().length() > reference.length()+1 || article.getDesignation()==null || article.getPVHT()==null);
+        articles.removeIf(article -> article.getReference().length() < reference.length() || article.getReference().length() > reference.length()+1 || article.getDesignation().isEmpty() || article.getPVHT().isEmpty());
         return articles;
     }
 
     @Override
     public List<Article> advancedSearchArticles(String designation, String frn) {
         List<Article> articles = articleRepository.findByDesignationAndFrn(designation, frn);
-        articles.removeIf(article -> article.getDesignation()==null || article.getPVHT()==null);
+        articles.removeIf(article -> article.getDesignation().isEmpty() || article.getPVHT().isEmpty());
         return articles.stream().limit(3).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Article> getEquivalentArticles(Long articleId) {
+        Article article = articleRepository.findById(articleId).get();
+        List<Article> equivalents = articleRepository.findByDesignationIgnoreCaseContainingOrderBySTOCKDesc(article.getDesignation());
+        equivalents.removeIf(equivalent -> equivalent.getId().equals(articleId));
+        return equivalents;
     }
 
 }

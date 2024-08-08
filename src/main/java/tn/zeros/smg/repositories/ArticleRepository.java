@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import tn.zeros.smg.controllers.DTO.ArticleDTO;
 import tn.zeros.smg.entities.Article;
-import tn.zeros.smg.entities.User;
 
 import java.util.List;
 
@@ -15,8 +14,11 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findByReferenceInAndFrnIn(List<String> references, List<String> frns);
     List<Article> findByReferenceStartingWithIgnoreCase(String reference);
     List<Article> findAll(Sort sort);
+
     @Query("SELECT a.id as id, a.designation as designation, a.frn as frn, a.PVHT as PVHT, a.STOCK as STOCK FROM Article a WHERE a.STOCK > 0")
     List<ArticleDTO> findAllProjectedBy(Sort sort);
+
+    // Advanced search by designation and frn and full frn name
     @Query(value = "SELECT DISTINCT a.* FROM article a " +
             "LEFT JOIN fournisseur f ON a.frn = f.abbreviation " +
             "WHERE (:designation IS NULL OR " +
@@ -34,5 +36,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
             "AND (:frn IS NULL OR LOWER(a.frn) LIKE LOWER(CONCAT('%', :frn, '%')) OR LOWER(f.full_name) LIKE LOWER(CONCAT('%', :frn, '%'))) " +
             "ORDER BY a.STOCK DESC", nativeQuery = true)
     List<Article> findByDesignationAndFrn(@Param("designation") String designation, @Param("frn") String frn);
+
+    List<Article> findByDesignationIgnoreCaseContainingOrderBySTOCKDesc(String designation);
+
 
 }

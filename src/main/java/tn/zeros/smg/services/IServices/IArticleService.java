@@ -14,4 +14,5 @@ public interface IArticleService {
     Article modifyArticle(Article Article);
     List<Article> chercherArticle(String reference);
     List<Article> advancedSearchArticles(String designation, String frn);
+    List<Article> getEquivalentArticles(Long articleId);
 }
