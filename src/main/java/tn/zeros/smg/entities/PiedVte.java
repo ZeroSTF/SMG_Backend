@@ -6,7 +6,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
 import java.io.Serializable;
 
 @Entity
@@ -73,4 +72,6 @@ public class PiedVte implements Serializable {
     String priorite;
     String datprep;
     String veriefiepar;
+
+    String status;
 }

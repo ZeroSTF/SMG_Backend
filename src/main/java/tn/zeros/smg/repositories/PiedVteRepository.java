@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface PiedVteRepository extends JpaRepository<PiedVte, Long> {
     List<PiedVte> findByCodecl(String codeClt);
+    PiedVte findByCodeclAndNbon(String codeClt, String nBon);
 }

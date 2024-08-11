@@ -11,7 +11,8 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VenteResponseDTO {
-    Long id;
-    String date;
-    String etat;
+    String id;
+    String commandeDate;
+    String total;
+    String status;
 }

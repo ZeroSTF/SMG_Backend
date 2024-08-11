@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface RedFactRepository extends JpaRepository<RedFact, Long> {
     List<RedFact> findByNfact(String nFact);
+    boolean existsByCodeclAndNbon(String codeCl, String nbon);
 }
