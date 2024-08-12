@@ -2,24 +2,31 @@ package tn.zeros.smg.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import tn.zeros.smg.controllers.DTO.CurrentDTO;
 import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
+import tn.zeros.smg.controllers.DTO.UserDTO;
 import tn.zeros.smg.entities.Panier;
 import tn.zeros.smg.entities.Role;
 import tn.zeros.smg.entities.User;
 import tn.zeros.smg.services.IServices.IUserService;
-
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import static tn.zeros.smg.services.UserService.UPLOAD_DIR;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,8 +35,10 @@ import java.util.Set;
 @Slf4j
 public class UserController {
     private final IUserService userService;
+
     @GetMapping("/getAll")
-    public List<User> getUsers() {
+    @Cacheable("users")
+    public List<UserDTO> getUsers() {
         return userService.retrieveAllUsers();
     }
 
@@ -146,5 +155,17 @@ public class UserController {
         log.info("soldeSum");
         log.info(userService.soldeSum());
         return ResponseEntity.ok(userService.soldeSum());
+    }
+
+    @GetMapping("/getMat/{fileName}")
+    public ResponseEntity<byte[]> getMat(@PathVariable String fileName) throws IOException {
+        String filePath = UPLOAD_DIR + fileName;
+        File file = new File(filePath);
+        if (!file.exists()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Image not found");
+        }
+        byte[] imageData = Files.readAllBytes(file.toPath());
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
+                .body(imageData);
     }
 }

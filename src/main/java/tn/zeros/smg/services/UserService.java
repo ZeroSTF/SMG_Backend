@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
+import tn.zeros.smg.controllers.DTO.UserDTO;
 import tn.zeros.smg.entities.*;
 import tn.zeros.smg.entities.enums.UStatus;
 import tn.zeros.smg.exceptions.InvalidCredentialsException;
@@ -158,8 +159,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<User> retrieveAllUsers() {
-        return userRepository.findAll(Sort.by(Sort.Direction.ASC, "nom"));
+    public List<UserDTO> retrieveAllUsers() {
+        return userRepository.findAllProjectedBy(Sort.by(Sort.Direction.ASC, "nom"));
     }
 
     @Override

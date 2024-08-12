@@ -18,4 +18,14 @@ public class LoggingAspect {
          log.info(joinPoint.getSignature() + " executed in " + executionTime + "ms");
          return proceed;
      }
+
+     // executed in method for user getall from usercontroller
+        @Around("execution(* tn.zeros.smg.controllers.UserController.getUsers(..))")
+        public Object logGetAllExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
+            long start = System.currentTimeMillis();
+            Object proceed = joinPoint.proceed();
+            long executionTime = System.currentTimeMillis() - start;
+            log.info(joinPoint.getSignature() + " executed in " + executionTime + "ms");
+            return proceed;
+        }
 }

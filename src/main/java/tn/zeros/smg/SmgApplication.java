@@ -3,6 +3,7 @@ package tn.zeros.smg;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -18,6 +19,7 @@ import tn.zeros.smg.services.VenteService;
 @SpringBootApplication
 @EnableAspectJAutoProxy
 @EnableScheduling
+@EnableCaching
 @EnableAsync
 public class SmgApplication {
 

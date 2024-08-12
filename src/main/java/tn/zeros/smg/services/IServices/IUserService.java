@@ -2,6 +2,7 @@ package tn.zeros.smg.services.IServices;
 
 import org.springframework.web.multipart.MultipartFile;
 import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
+import tn.zeros.smg.controllers.DTO.UserDTO;
 import tn.zeros.smg.entities.Panier;
 import tn.zeros.smg.entities.User;
 
@@ -18,7 +19,7 @@ public interface IUserService {
     User getCurrentUser();
 
     //CRUD
-    List<User> retrieveAllUsers();
+    List<UserDTO> retrieveAllUsers();
     User retrieveUser(Long id);
     User addUser(User c);
     void removeUser(Long id) throws IOException;
