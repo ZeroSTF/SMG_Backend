@@ -1,0 +1,15 @@
+meta {
+  name: Check token
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:8080/auth/check-token
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoicmlhZGhAZXNwcml0LnRuIiwiaWF0IjoxNzE0OTAzMTI4LCJyb2xlcyI6IkFETUlOIn0.gheR800Ok3A3R6CEu9ZwHXS-ezY5gHB6nOVlI5dXcC2y2neeJjtwMLyAY8yqto3RgbM7ZByRcTGHpKbT7DRvii6kpRAUGRGqp8uRjeIeipgr8lJ5gkyORedpTs_5ejV_OXmwTctLFQSWdfn9LgKM3qGxsErwhfpL6tlXr530u9S4AOu47rzBEtmee4BY8Y6r8TL-CL1wJnTg_udZpfxK_SC-fjnJHO8WfZI8w4B5gMDTEogOhuM_qNVw2izI_xtzYeVYZPf_hwHhdpR86RVzZY2TYmIpyJ3bDYByYIva4Q9dXQJNGYg8rIjKhUJvu7AnDiY2Ph06i1brtR6t5W45_g
+}

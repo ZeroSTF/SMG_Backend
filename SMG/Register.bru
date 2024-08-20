@@ -1,0 +1,19 @@
+meta {
+  name: Register
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/auth/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "nom": "Riadh Chnitir",
+      "email": "riadhchnitir0506@gmail.com",
+      "password": "111111"
+  }
+}

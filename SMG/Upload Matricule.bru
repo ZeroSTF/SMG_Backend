@@ -1,0 +1,15 @@
+meta {
+  name: Upload Matricule
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://localhost:8080/user/upload/1550
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  file: @file(/C:/Users/Administrateur/Desktop/2.JPG)
+}
