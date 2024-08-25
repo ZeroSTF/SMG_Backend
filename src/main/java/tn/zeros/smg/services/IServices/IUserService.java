@@ -17,6 +17,7 @@ public interface IUserService {
     void logout();
     Boolean verifyToken(String token);
     User getCurrentUser();
+    String getRoleString(User user);
 
     //CRUD
     List<UserDTO> retrieveAllUsers();

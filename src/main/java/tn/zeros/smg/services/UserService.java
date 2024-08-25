@@ -172,16 +172,7 @@ public class UserService implements IUserService {
                 return null;
             SecurityContextHolder.getContext().setAuthentication(auth);
 
-            String role = "user";
-            Set<Role> roles = user.getRole();
-            if (!roles.isEmpty()) {
-                Iterator<Role> iterator = roles.iterator();
-                Role firstRole = iterator.next();
-                Long firstRoleId = firstRole.getId();
-                if (firstRoleId == 1) {
-                    role = "admin";
-                }
-            }
+            String role = getRoleString(user);
             return new LoginResponseDTO(user.getCode(), user.getNom(), user.getEmail(), role, token);
         } catch (Exception e) {
             log.error("Error during token login: ", e);
@@ -209,7 +200,7 @@ public class UserService implements IUserService {
             log.info("notifying all admins");
             List<User> admins = userRepository.findAdminUsers();
             admins.forEach(admin -> {
-                Notification N = Notification.builder().title("Nouveau utilisateur en attente").description("Un nouveau utilisateur est en attente de confirmation").useRouter(true).link("/dashboards/clients/" + user.getId()).user(admin).build();
+                Notification N = Notification.builder().title("Nouveau utilisateur en attente").description("Un nouvel utilisateur est en attente de confirmation").useRouter(true).link("/dashboards/clients/" + user.getId()).user(admin).build();
                 notificationService.addNotification(N);
             });
             userRepository.save(user);
@@ -447,5 +438,23 @@ public class UserService implements IUserService {
             throw new RuntimeException("Failed to get current user", e);
 
         }
+    }
+
+    @Override
+    public String getRoleString(User user) {
+        String role = "user";
+        Set<Role> roles = user.getRole();
+        if (!roles.isEmpty()) {
+            Iterator<Role> iterator = roles.iterator();
+            Role firstRole = iterator.next();
+            Long firstRoleId = firstRole.getId();
+            if (firstRoleId == 1) {
+                role = "admin";
+            }
+            if (firstRoleId == 3) {
+                role = "old";
+            }
+        }
+        return role;
     }
 }
