@@ -1,3 +1,25 @@
+/**
+ * The `UserService` class is responsible for managing user-related operations, including authentication, registration, and user management.
+ *
+ * This service provides the following functionality:
+ * - Registering new users
+ * - Logging in users using their code and password, or a JWT token
+ * - Logging out users
+ * - Verifying email confirmation tokens
+ * - Retrieving all users or a specific user by ID
+ * - Adding new users
+ * - Removing users
+ * - Modifying user information
+ * - Loading a user by their code
+ * - Confirming a new email address for a user
+ * - Searching for users by name
+ * - Saving and deleting user profile photos
+ * - Ensuring each user has a shopping cart (panier)
+ * - Calculating the total balance (solde) of all users
+ * - Retrieving the currently authenticated user
+ *
+ * The service uses various repositories and services, such as `UserRepository`, `RoleRepository`, `ConfirmationRepository`, `PanierRepository`, `IEmailService`, `ITokenService`, and `INotificationService`, to perform its operations.
+ */
 package tn.zeros.smg.services;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -53,7 +75,15 @@ public class UserService implements IUserService {
 
     public static final String UPLOAD_DIR = "uploads/matricules/";
 
-    //Authentication
+    /**
+     * Registers a new user in the system.
+     *
+     * @param user The user object to be registered.
+     * @return The saved user object.
+     * @throws IllegalArgumentException If the email already exists.
+     * @throws EntityNotFoundException If the user role is not found.
+     * @throws RuntimeException If there is an error registering the user.
+     */
     @Override
     public User registerUser(User user) {
         try {
@@ -77,6 +107,15 @@ public class UserService implements IUserService {
         }
     }
 
+    /**
+     * Authenticates a user and generates a JWT token for the login session.
+     *
+     * @param code The user's code (username).
+     * @param password The user's password.
+     * @return A {@link LoginResponseDTO} containing the user's code, name, email, role, and the generated JWT token.
+     * @throws InvalidCredentialsException If the provided code or password is invalid, or the user's status is not active.
+     * @throws RuntimeException If there is an error during the login process.
+     */
     @Override
     public LoginResponseDTO login(String code, String password) {
         try {
@@ -111,6 +150,14 @@ public class UserService implements IUserService {
         }
     }
 
+    /**
+     * Authenticates a user using a JWT token and returns a {@link LoginResponseDTO} containing the user's details and the token.
+     *
+     * @param token The JWT token to authenticate the user.
+     * @return A {@link LoginResponseDTO} containing the user's code, name, email, role, and the generated JWT token.
+     * @throws InvalidCredentialsException If the provided token is invalid or the user's status is not active.
+     * @throws RuntimeException If there is an error during the token login process.
+     */
     @Override
     public LoginResponseDTO login(String token) {
         try {
