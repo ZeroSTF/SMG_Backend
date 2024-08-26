@@ -32,5 +32,6 @@ public class Commande implements Serializable {
     double total;
 
     @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     List<CommandeItem> commandeItems = new ArrayList<>();
 }

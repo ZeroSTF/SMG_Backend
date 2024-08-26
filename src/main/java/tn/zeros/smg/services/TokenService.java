@@ -49,14 +49,15 @@ public class TokenService implements ITokenService {
     }
 
     @Override
-    public Boolean isTokenExpired(String token){
-        //check if token exists
-        if(token == null){
+    public Boolean isTokenExpired(String token) {
+        // Check if token exists
+        if (token == null) {
             return true;
         }
-        //check if the token is expired without decoding it
-        Jwt jwt=this.decodeJwt(token);
-        return jwt.getExpiresAt().isBefore(Instant.now());
+        // Check if the token is expired
+        Jwt jwt = this.decodeJwt(token);
+        Instant expiresAt = jwt.getExpiresAt();
+        return expiresAt != null && expiresAt.isBefore(Instant.now());
     }
 
 }

@@ -65,5 +65,6 @@ public class Article implements Serializable {
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
+    @Builder.Default
     private Set<PanierArticle> panierArticles = new HashSet<>();
 }

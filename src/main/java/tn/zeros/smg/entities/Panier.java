@@ -27,6 +27,7 @@ public class Panier implements Serializable {
     User user;
 
     @OneToMany(mappedBy = "panier", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     Set<PanierArticle> panierArticles = new HashSet<>();
 
     public void addPanierArticle(PanierArticle panierArticle) {
