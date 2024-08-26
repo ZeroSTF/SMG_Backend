@@ -29,6 +29,17 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 import tn.zeros.smg.utils.RSAKeyProperties;
 
+/**
+ * Configures the security filter chain for the application.
+ * This method sets up the authorization rules, JWT authentication, and session management for the application.
+ * It allows public access to certain endpoints (e.g. API documentation, login, registration) and requires authentication for all other requests.
+ * The JWT authentication is configured to use the `jwtAuthenticationConverter` bean to extract authorities from the JWT token.
+ * The session management is configured to use a stateless session policy, which means no session is created or used.
+ *
+ * @param http the HttpSecurity object used to configure the security filter chain
+ * @return the configured SecurityFilterChain
+ * @throws Exception if there is an error configuring the security filter chain
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
