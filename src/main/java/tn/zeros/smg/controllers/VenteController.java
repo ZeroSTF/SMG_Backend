@@ -5,13 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import tn.zeros.smg.controllers.DTO.DetailsFactureDTO;
 import tn.zeros.smg.controllers.DTO.DetailsVenteDTO;
 import tn.zeros.smg.controllers.DTO.VenteResponseDTO;
-import tn.zeros.smg.entities.PiedFact;
 import tn.zeros.smg.entities.PiedVte;
 import tn.zeros.smg.entities.Vente;
-import tn.zeros.smg.services.IServices.IUserService;
 import tn.zeros.smg.services.IServices.IVenteService;
 
 import java.util.List;
@@ -22,7 +19,6 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class VenteController {
     private final IVenteService venteService;
-    private final IUserService userService;
 
     @GetMapping("/getAll")
     public List<VenteResponseDTO> getVentes() {

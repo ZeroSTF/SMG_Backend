@@ -6,9 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import tn.zeros.smg.entities.Commande;
 import tn.zeros.smg.entities.User;
 import tn.zeros.smg.entities.enums.CommandeStatus;
-import tn.zeros.smg.services.IServices.IArticleService;
 import tn.zeros.smg.services.IServices.ICommandeService;
-import tn.zeros.smg.services.IServices.IPanierService;
 import tn.zeros.smg.services.IServices.IUserService;
 
 import java.util.List;
