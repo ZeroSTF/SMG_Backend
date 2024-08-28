@@ -1,51 +1,23 @@
-/**
- * The `UserService` class is responsible for managing user-related operations, including authentication, registration, and user management.
- *
- * This service provides the following functionality:
- * - Registering new users
- * - Logging in users using their code and password, or a JWT token
- * - Logging out users
- * - Verifying email confirmation tokens
- * - Retrieving all users or a specific user by ID
- * - Adding new users
- * - Removing users
- * - Modifying user information
- * - Loading a user by their code
- * - Confirming a new email address for a user
- * - Searching for users by name
- * - Saving and deleting user profile photos
- * - Ensuring each user has a shopping cart (panier)
- * - Calculating the total balance (solde) of all users
- * - Retrieving the currently authenticated user
- *
- * The service uses various repositories and services, such as `UserRepository`, `RoleRepository`, `ConfirmationRepository`, `PanierRepository`, `IEmailService`, `ITokenService`, and `INotificationService`, to perform its operations.
- */
 package tn.zeros.smg.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
 import tn.zeros.smg.controllers.DTO.UserDTO;
 import tn.zeros.smg.entities.*;
 import tn.zeros.smg.entities.enums.UStatus;
-import tn.zeros.smg.exceptions.InvalidCredentialsException;
 import tn.zeros.smg.repositories.ConfirmationRepository;
 import tn.zeros.smg.repositories.RoleRepository;
 import tn.zeros.smg.repositories.UserRepository;
 import tn.zeros.smg.services.IServices.IEmailService;
 import tn.zeros.smg.services.IServices.INotificationService;
-import tn.zeros.smg.services.IServices.ITokenService;
 import tn.zeros.smg.services.IServices.IUserService;
 
 import java.io.File;
@@ -62,81 +34,13 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ConfirmationRepository confirmationRepository;
+
     private final IEmailService emailService;
-    private final ITokenService tokenService;
     private final INotificationService notificationService;
 
-    @Lazy
-    private final AuthenticationManager authenticationManager;
     private final PasswordEncoder encoder;
 
     public static final String UPLOAD_DIR = "uploads/matricules/";
-
-    @Override
-    public User registerUser(User user) {
-        try {
-            if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-                throw new IllegalArgumentException("Email already exists");
-            }
-            String encodedPassword = encoder.encode(user.getPassword());
-            Role userRole = roleRepository.findById(2L)
-                    .orElseThrow(() -> new EntityNotFoundException("Role not found"));
-            Set<Role> authorities = new HashSet<>();
-            authorities.add(userRole);
-            user.setPassword(encodedPassword);
-            user.setStatus(UStatus.Unconfirmed);
-            user.setRole(authorities);
-            User savedUser = userRepository.save(user);
-            ensureUserHasPanier(savedUser);
-            confirmNewEmail(savedUser);
-            return savedUser;
-        } catch (Exception e) {
-            log.error("Error registering user: ", e);
-            throw new RuntimeException("Failed to register user", e);
-        }
-    }
-
-    @Override
-    public LoginResponseDTO login(String code, String password) {
-        try {
-            User user = userRepository.findByCode(code)
-                    .orElseThrow(() -> new InvalidCredentialsException("Wrong code or password"));
-
-            if (!encoder.matches(password, user.getPassword()) || !user.getStatus().equals(UStatus.Active)) {
-                throw new InvalidCredentialsException("Wrong code or password");
-            }
-
-            Authentication auth = authenticationManager
-                    .authenticate(new UsernamePasswordAuthenticationToken(code, password));
-            String accessToken = tokenService.generateJwt(auth);
-            String refreshToken = tokenService.generateRefreshToken(auth);
-
-            String role = "user";
-            Set<Role> roles = user.getRole();
-            if (!roles.isEmpty()) {
-                Iterator<Role> iterator = roles.iterator();
-                Role firstRole = iterator.next();
-                Long firstRoleId = firstRole.getId();
-                if (firstRoleId == 1) {
-                    role = "admin";
-                }
-                if (firstRoleId == 3) {
-                    role = "old";
-                }
-            }
-
-            return new LoginResponseDTO(user.getCode(), user.getNom(), user.getEmail(), role, accessToken,
-                    refreshToken);
-        } catch (Exception e) {
-            log.error("Error during login: ", e);
-            throw new RuntimeException("Login failed", e);
-        }
-    }
-
-    @Override
-    public void logout() {
-        SecurityContextHolder.clearContext();
-    }
 
     @Override
     @Transactional
@@ -337,6 +241,7 @@ public class UserService implements IUserService {
     }
 
     @Transactional
+    @Override
     public void ensureUserHasPanier(User user) {
         try {
             if (user.getPanier() == null) {

@@ -18,6 +18,7 @@ import tn.zeros.smg.controllers.DTO.LogoutResponseDTO;
 import tn.zeros.smg.controllers.DTO.RegistrationDTO;
 import tn.zeros.smg.entities.User;
 import tn.zeros.smg.exceptions.InvalidCredentialsException;
+import tn.zeros.smg.services.IServices.IAuthService;
 import tn.zeros.smg.services.IServices.ITokenService;
 import tn.zeros.smg.services.IServices.IUserService;
 
@@ -28,13 +29,14 @@ import tn.zeros.smg.services.IServices.IUserService;
 @Slf4j
 public class AuthenticationController {
     private final IUserService userService;
+    private final IAuthService authService;
     private final ITokenService tokenService;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegistrationDTO body) {
         User user = new User(body.getEmail(), body.getPassword(), body.getNom(), body.getAdresse(), body.getCodetva(),
                 body.getTel1(), body.getTel2(), body.getFax(), body.getIdfiscal());
-        User registeredUser = userService.registerUser(user);
+        User registeredUser = authService.registerUser(user);
         if (registeredUser != null) {
             return ResponseEntity.ok(registeredUser);
         } else {
@@ -45,7 +47,7 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginDTO body) {
         try {
-            LoginResponseDTO response = userService.login(body.getCode(), body.getPassword());
+            LoginResponseDTO response = authService.login(body.getCode(), body.getPassword());
             return ResponseEntity.ok(response);
         } catch (InvalidCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Wrong code or password");
@@ -57,7 +59,7 @@ public class AuthenticationController {
     @PostMapping("/logout")
     public ResponseEntity<LogoutResponseDTO> logout() {
         try {
-            userService.logout();
+            authService.logout();
             return ResponseEntity.ok(new LogoutResponseDTO(true, "Logout successful!"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new LogoutResponseDTO(false, e.getMessage()));

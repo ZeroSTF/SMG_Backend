@@ -10,20 +10,12 @@ import java.io.IOException;
 import java.util.List;
 
 public interface IUserService {
-    // AUTHENTICATION
-    User registerUser(User user);
-
-    LoginResponseDTO login(String code, String password);
-
-    void logout();
-
     Boolean verifyToken(String token);
 
     User getCurrentUser();
 
     String getRoleString(User user);
 
-    // CRUD
     List<UserDTO> retrieveAllUsers();
 
     User retrieveUser(Long id);
@@ -47,4 +39,6 @@ public interface IUserService {
     Panier getUserPanier(Long userId);
 
     String soldeSum();
+
+    void ensureUserHasPanier(User user);
 }
