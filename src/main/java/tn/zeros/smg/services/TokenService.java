@@ -28,7 +28,7 @@ public class TokenService implements ITokenService {
         String scope = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
-        Instant expiry = now.plus(1, ChronoUnit.MINUTES); // Set the expiration time to 1 minute from now
+        Instant expiry = now.plus(1, ChronoUnit.HOURS);
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
@@ -45,6 +45,7 @@ public class TokenService implements ITokenService {
             return jwtDecoder.decode(token);
         } catch (JwtException e) {
             // Log the error and handle it appropriately
+            log.error("Error decoding JWT", e);
             throw new InvalidBearerTokenException("Invalid token", e);
         }
     }
@@ -83,6 +84,8 @@ public class TokenService implements ITokenService {
     public Map<String, String> generateTokenPair(Authentication auth) {
         String accessToken = generateJwt(auth);
         String refreshToken = generateRefreshToken(auth);
+        log.info("access token is: " + accessToken);
+        log.info("refresh token is: " + refreshToken);
         return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
     }
 

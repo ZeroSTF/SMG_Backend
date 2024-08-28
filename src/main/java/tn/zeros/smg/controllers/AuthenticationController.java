@@ -66,17 +66,13 @@ public class AuthenticationController {
 
     @GetMapping("/check-token")
     public ResponseEntity<Boolean> checkToken(@RequestHeader("AccessToken") String token) {
-        log.info("the token is " + token);
         try {
             if (tokenService.isTokenExpired(token)) {
-                log.info("turns out this bitch is expired fellas\n\n\n\n\n");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
             } else {
-                log.info("this shit aint expired\n\n\n\n\n");
                 return ResponseEntity.ok(true);
             }
         } catch (Exception e) {
-            log.info("error my niggas\n\n\n\n\n\n");
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
