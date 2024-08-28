@@ -29,9 +29,11 @@ import tn.zeros.smg.services.IServices.IUserService;
 public class AuthenticationController {
     private final IUserService userService;
     private final ITokenService tokenService;
+
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegistrationDTO body){
-        User user = new User(body.getEmail(), body.getPassword(), body.getNom(), body.getAdresse(), body.getCodetva(), body.getTel1(), body.getTel2(), body.getFax(), body.getIdfiscal());
+    public ResponseEntity<?> registerUser(@RequestBody RegistrationDTO body) {
+        User user = new User(body.getEmail(), body.getPassword(), body.getNom(), body.getAdresse(), body.getCodetva(),
+                body.getTel1(), body.getTel2(), body.getFax(), body.getIdfiscal());
         User registeredUser = userService.registerUser(user);
         if (registeredUser != null) {
             return ResponseEntity.ok(registeredUser);
@@ -52,18 +54,6 @@ public class AuthenticationController {
         }
     }
 
-    @PostMapping("/login-token")
-    public ResponseEntity<?> loginToken(@RequestBody String token) {
-        try {
-            LoginResponseDTO response = userService.login(token);
-            return ResponseEntity.ok(response);
-        } catch (InvalidCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
-        }
-    }
-
     @PostMapping("/logout")
     public ResponseEntity<LogoutResponseDTO> logout() {
         try {
@@ -75,32 +65,38 @@ public class AuthenticationController {
     }
 
     @GetMapping("/check-token")
-    public ResponseEntity<Boolean> checkToken(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<Boolean> checkToken(@RequestHeader("AccessToken") String token) {
+        log.info("the token is " + token);
         try {
-            if (tokenService.isTokenExpired(token.substring(7))) {
+            if (tokenService.isTokenExpired(token)) {
+                log.info("turns out this bitch is expired fellas\n\n\n\n\n");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
             } else {
+                log.info("this shit aint expired\n\n\n\n\n");
                 return ResponseEntity.ok(true);
             }
         } catch (Exception e) {
+            log.info("error my niggas\n\n\n\n\n\n");
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
     }
 
     @PostMapping("/refresh-token")
-public ResponseEntity<?> refreshToken(@RequestBody String refreshToken) {
-    try {
-        Jwt decodedRefreshToken = tokenService.decodeJwt(refreshToken);
-        if (!"refresh".equals(decodedRefreshToken.getClaim("type"))) {
-            throw new InvalidBearerTokenException("Invalid token type");
+    public ResponseEntity<?> refreshToken(@RequestHeader("RefreshToken") String refreshToken) {
+        try {
+            Jwt decodedRefreshToken = tokenService.decodeJwt(refreshToken);
+            if (!"refresh".equals(decodedRefreshToken.getClaim("type"))) {
+                throw new InvalidBearerTokenException("Invalid token type");
+            }
+            String username = decodedRefreshToken.getSubject();
+            UserDetails userDetails = userService.loadUserByCode(username);
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
+                    null, userDetails.getAuthorities());
+            Map<String, String> tokens = tokenService.generateTokenPair(authentication);
+            return ResponseEntity.ok(tokens);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
         }
-        String username = decodedRefreshToken.getSubject();
-        UserDetails userDetails = userService.loadUserByCode(username);
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        Map<String, String> tokens = tokenService.generateTokenPair(authentication);
-        return ResponseEntity.ok(tokens);
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
     }
-}
 }

@@ -15,4 +15,5 @@ public class LoginResponseDTO {
     private String code;
     private String role;
     private String jwt;
+    private String refreshToken;
 }

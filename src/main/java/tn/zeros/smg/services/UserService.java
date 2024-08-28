@@ -79,7 +79,8 @@ public class UserService implements IUserService {
                 throw new IllegalArgumentException("Email already exists");
             }
             String encodedPassword = encoder.encode(user.getPassword());
-            Role userRole = roleRepository.findById(2L).orElseThrow(() -> new EntityNotFoundException("Role not found"));
+            Role userRole = roleRepository.findById(2L)
+                    .orElseThrow(() -> new EntityNotFoundException("Role not found"));
             Set<Role> authorities = new HashSet<>();
             authorities.add(userRole);
             user.setPassword(encodedPassword);
@@ -105,8 +106,10 @@ public class UserService implements IUserService {
                 throw new InvalidCredentialsException("Wrong code or password");
             }
 
-            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(code, password));
-            String token = tokenService.generateJwt(auth);
+            Authentication auth = authenticationManager
+                    .authenticate(new UsernamePasswordAuthenticationToken(code, password));
+            String accessToken = tokenService.generateJwt(auth);
+            String refreshToken = tokenService.generateRefreshToken(auth);
 
             String role = "user";
             Set<Role> roles = user.getRole();
@@ -122,32 +125,11 @@ public class UserService implements IUserService {
                 }
             }
 
-            return new LoginResponseDTO(user.getCode(), user.getNom(), user.getEmail(), role, token);
+            return new LoginResponseDTO(user.getCode(), user.getNom(), user.getEmail(), role, accessToken,
+                    refreshToken);
         } catch (Exception e) {
             log.error("Error during login: ", e);
             throw new RuntimeException("Login failed", e);
-        }
-    }
-
-    @Override
-    public LoginResponseDTO login(String token) {
-        try {
-            if (token.startsWith("{\"accessToken\":\"") && token.endsWith("\"}")) {
-                token = token.substring(16, token.length() - 2);
-            }
-            Authentication auth = new UsernamePasswordAuthenticationToken(token, token);
-            String code = tokenService.decodeJwt(token).getSubject();
-            User user = userRepository.findByCode(code)
-                    .orElseThrow(() -> new InvalidCredentialsException("Invalid token"));
-            if (!user.getStatus().equals(UStatus.Active))
-                return null;
-            SecurityContextHolder.getContext().setAuthentication(auth);
-
-            String role = getRoleString(user);
-            return new LoginResponseDTO(user.getCode(), user.getNom(), user.getEmail(), role, token);
-        } catch (Exception e) {
-            log.error("Error during token login: ", e);
-            throw new RuntimeException("Token login failed", e);
         }
     }
 
@@ -171,7 +153,9 @@ public class UserService implements IUserService {
             log.info("notifying all admins");
             List<User> admins = userRepository.findAdminUsers();
             admins.forEach(admin -> {
-                Notification N = Notification.builder().title("Nouveau utilisateur en attente").description("Un nouvel utilisateur est en attente de confirmation").useRouter(true).link("/dashboards/clients/" + user.getId()).user(admin).build();
+                Notification N = Notification.builder().title("Nouveau utilisateur en attente")
+                        .description("Un nouvel utilisateur est en attente de confirmation").useRouter(true)
+                        .link("/dashboards/clients/" + user.getId()).user(admin).build();
                 notificationService.addNotification(N);
             });
             userRepository.save(user);
@@ -195,7 +179,8 @@ public class UserService implements IUserService {
     @Override
     public User retrieveUser(Long id) {
         try {
-            return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+            return userRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
         } catch (Exception e) {
             log.error("Error retrieving user: ", e);
             throw new RuntimeException("Failed to retrieve user", e);
@@ -210,7 +195,9 @@ public class UserService implements IUserService {
                 throw new IllegalArgumentException("Email already exists");
             }
             c.setPassword(encoder.encode(c.getPassword()));
-            Role userRole = roleRepository.findById(c.getRole().stream().findFirst().orElseThrow(() -> new EntityNotFoundException("Role not found")).getId())
+            Role userRole = roleRepository
+                    .findById(c.getRole().stream().findFirst()
+                            .orElseThrow(() -> new EntityNotFoundException("Role not found")).getId())
                     .orElseThrow(() -> new EntityNotFoundException("Role not found"));
             Set<Role> authorities = new HashSet<>();
             authorities.add(userRole);
@@ -226,7 +213,8 @@ public class UserService implements IUserService {
     @Transactional
     public void removeUser(Long id) throws IOException {
         try {
-            User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+            User user = userRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
             this.deletePhoto(user.getPhotomat());
             Confirmation c = confirmationRepository.findConfirmationByUser(user);
             if (c != null) {
@@ -248,7 +236,8 @@ public class UserService implements IUserService {
             User existingUser = userRepository.findById(user.getId())
                     .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + user.getId()));
             if (existingUser.getRole().stream().findFirst().get().getId() == 3) {
-                Role userRole = roleRepository.findById(2L).orElseThrow(() -> new EntityNotFoundException("Role not found"));
+                Role userRole = roleRepository.findById(2L)
+                        .orElseThrow(() -> new EntityNotFoundException("Role not found"));
                 Set<Role> authorities = new HashSet<>();
                 authorities.add(userRole);
                 user.setRole(authorities);
@@ -267,7 +256,8 @@ public class UserService implements IUserService {
     @Override
     public User loadUserByCode(String code) {
         try {
-            return userRepository.findByCode(code).orElseThrow(() -> new EntityNotFoundException("User not found with code: " + code));
+            return userRepository.findByCode(code)
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with code: " + code));
         } catch (Exception e) {
             log.error("Error loading user by code: ", e);
             throw new RuntimeException("Failed to load user by code", e);
@@ -377,7 +367,8 @@ public class UserService implements IUserService {
     @Override
     public Panier getUserPanier(Long userId) {
         try {
-            User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
             return user.getPanier();
         } catch (Exception e) {
             log.error("Error getting user panier: ", e);
@@ -390,7 +381,9 @@ public class UserService implements IUserService {
         try {
             List<String> soldes = userRepository.findSoldes();
             soldes.removeIf(String::isEmpty);
-            double sum = soldes.stream().mapToDouble(s -> Double.parseDouble(s.replaceAll("€", "").replaceAll("-", "").replaceAll(",", ".").replaceAll(" ", ""))).sum();
+            double sum = soldes.stream().mapToDouble(s -> Double
+                    .parseDouble(s.replaceAll("€", "").replaceAll("-", "").replaceAll(",", ".").replaceAll(" ", "")))
+                    .sum();
             return String.format("%.2f", sum);
         } catch (Exception e) {
             log.error("Error calculating solde sum: ", e);
@@ -403,7 +396,8 @@ public class UserService implements IUserService {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String currentCode = authentication.getName();
-            return userRepository.findByCode(currentCode).orElseThrow(() -> new EntityNotFoundException("User not found with code: " + currentCode));
+            return userRepository.findByCode(currentCode)
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with code: " + currentCode));
         } catch (Exception e) {
             log.error("Error getting current user: ", e);
             throw new RuntimeException("Failed to get current user", e);

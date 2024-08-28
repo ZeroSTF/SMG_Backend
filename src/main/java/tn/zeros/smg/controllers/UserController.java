@@ -114,8 +114,6 @@ public class UserController {
 
     @GetMapping("/solde")
     public ResponseEntity<String> soldeSum() {
-        log.info("soldeSum");
-        log.info(userService.soldeSum());
         return ResponseEntity.ok(userService.soldeSum());
     }
 

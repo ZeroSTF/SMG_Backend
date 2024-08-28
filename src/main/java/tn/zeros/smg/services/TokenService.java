@@ -1,6 +1,8 @@
 package tn.zeros.smg.services;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.*;
@@ -15,17 +17,18 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class TokenService implements ITokenService {
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
 
     @Override
-    public String generateJwt(Authentication auth){
+    public String generateJwt(Authentication auth) {
         Instant now = Instant.now();
         String scope = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
-        Instant expiry = now.plus(1, ChronoUnit.HOURS); // Set the expiration time to 1 hour from now
+        Instant expiry = now.plus(1, ChronoUnit.MINUTES); // Set the expiration time to 1 minute from now
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
@@ -37,11 +40,8 @@ public class TokenService implements ITokenService {
     }
 
     @Override
-    public Jwt decodeJwt(String token){
+    public Jwt decodeJwt(String token) {
         try {
-            if (token.startsWith("{\"accessToken\":\"") && token.endsWith("\"}")) {
-                token= token.substring(16, token.length() - 2);
-            }
             return jwtDecoder.decode(token);
         } catch (JwtException e) {
             // Log the error and handle it appropriately
