@@ -1,7 +1,6 @@
 package tn.zeros.smg.services.IServices;
 
 import org.springframework.web.multipart.MultipartFile;
-import tn.zeros.smg.controllers.DTO.LoginResponseDTO;
 import tn.zeros.smg.controllers.DTO.UserDTO;
 import tn.zeros.smg.entities.Panier;
 import tn.zeros.smg.entities.User;
