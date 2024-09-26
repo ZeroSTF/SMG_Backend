@@ -28,7 +28,7 @@ public class TokenService implements ITokenService {
         String scope = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
-        Instant expiry = now.plus(1, ChronoUnit.HOURS);
+        Instant expiry = now.plus(12, ChronoUnit.HOURS);
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)

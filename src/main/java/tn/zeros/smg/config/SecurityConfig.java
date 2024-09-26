@@ -29,17 +29,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 import tn.zeros.smg.utils.RSAKeyProperties;
 
-/**
- * Configures the security filter chain for the application.
- * This method sets up the authorization rules, JWT authentication, and session management for the application.
- * It allows public access to certain endpoints (e.g. API documentation, login, registration) and requires authentication for all other requests.
- * The JWT authentication is configured to use the `jwtAuthenticationConverter` bean to extract authorities from the JWT token.
- * The session management is configured to use a stateless session policy, which means no session is created or used.
- *
- * @param http the HttpSecurity object used to configure the security filter chain
- * @return the configured SecurityFilterChain
- * @throws Exception if there is an error configuring the security filter chain
- */
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -92,14 +82,15 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**", 
-                                         "/auth/login", "/auth/logout", "/auth/register", "/auth/login-token","/auth/refresh-token", 
-                                         "/user/verify", "/user/upload/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**",
+                                "/auth/login", "/auth/logout", "/auth/register", "/auth/login-token",
+                                "/auth/refresh-token",
+                                "/user/verify", "/user/upload/**")
+                        .permitAll()
+                        .requestMatchers("/article/delete/**", "/article/add", "/article/update/**").hasAuthority("ADMIN")
+                        .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                )
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
@@ -116,10 +107,13 @@ public class SecurityConfig {
     }
 
     /**
-     * Creates a JWT encoder that uses the configured public and private keys to sign JWT tokens.
-     * This bean is used to generate and sign JWT tokens that can be used for authentication and authorization.
+     * Creates a JWT encoder that uses the configured public and private keys to
+     * sign JWT tokens.
+     * This bean is used to generate and sign JWT tokens that can be used for
+     * authentication and authorization.
      *
-     * @return a JWT encoder instance that uses the configured public and private keys
+     * @return a JWT encoder instance that uses the configured public and private
+     *         keys
      */
     @Bean
     public JwtEncoder jwtEncoder() {
@@ -129,8 +123,10 @@ public class SecurityConfig {
     }
 
     /**
-     * Creates a JWT authentication converter that extracts authorities from the JWT token.
-     * The converter is configured to use the "roles" claim in the JWT token as the authorities,
+     * Creates a JWT authentication converter that extracts authorities from the JWT
+     * token.
+     * The converter is configured to use the "roles" claim in the JWT token as the
+     * authorities,
      * and it prefixes the authorities with "ROLE_".
      *
      * @return a JWT authentication converter instance

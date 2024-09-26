@@ -12,8 +12,8 @@ import java.security.interfaces.RSAPublicKey;
 @Getter
 @Setter
 public class RSAKeyProperties {
-    private RSAPublicKey publicKey;
-    private RSAPrivateKey privateKey;
+    private final RSAPublicKey publicKey;
+    private final RSAPrivateKey privateKey;
 
     public RSAKeyProperties(){
         KeyPair pair = KeyGeneratorUtility.generatedRsaKey();

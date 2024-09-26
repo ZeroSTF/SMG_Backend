@@ -40,7 +40,7 @@ public class VenteService implements IVenteService {
 
     @Override
     public List<PiedVte> retrieveVteByClient(String codeCl) {
-        return piedVteRepository.findByCodecl(codeCl);
+        return piedVteRepository.findByCodeclOrderByDatvte(codeCl);
     }
 
     @Override

@@ -1,0 +1,15 @@
+meta {
+  name: Current User
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:8080/auth/current
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoicm9zdG9tQGVzcHJpdC50biIsImV4cCI6MTcyNTY5Nzc5MiwiaWF0IjoxNzI1NjU0NTkyLCJyb2xlcyI6IlVTRVIifQ.n9ozrYZFfePQ8SfdddJg7Poyq0FL3YoSn27VK414Ux6ys-eKqrb-se8C1NlKTcoznuiL77Nl2Zyqxy-4ZTyV47cwEugEisBKDwHWMKvhzpg1gpjTvhPKgC3ssrQo4UFh0nxl4Y55oEtWRioXktUDFkhjZD5xvU4XblAG78d1gTVXRUHwkP8NcxUUmEe4qz7hzr55UgpQUO6cQV361L3bhyfQQuCnRs5KVCbq6BWb1IUfcAwbRyAdJgFFph2JZ2U5ATAA6AiFdblv2EfnjR-JKervgmL1U0ntnohDaO5jwMAIo05UuOY3VHGATPraJmVPa4-hwvYenbqedueDqTgIbg
+}
