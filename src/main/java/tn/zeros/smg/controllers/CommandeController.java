@@ -14,7 +14,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/commande")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class CommandeController {
     private final ICommandeService commandeService;
     private final IUserService userService;

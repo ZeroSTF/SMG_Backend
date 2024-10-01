@@ -14,7 +14,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/article")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @Slf4j
 public class ArticleController {
     private final IArticleService articleService;

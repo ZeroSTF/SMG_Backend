@@ -16,7 +16,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/facture")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class FactureController {
     private final IFactureService factureService;
     private final IVenteService venteService;

@@ -25,7 +25,6 @@ import tn.zeros.smg.services.IServices.IUserService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @Slf4j
 public class AuthenticationController {
     private final IUserService userService;

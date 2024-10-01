@@ -15,7 +15,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/panier")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @Slf4j
 @RequiredArgsConstructor
 public class PanierController {

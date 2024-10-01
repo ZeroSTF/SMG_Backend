@@ -23,7 +23,6 @@ import static tn.zeros.smg.services.UserService.UPLOAD_DIR;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @Slf4j
 public class UserController {
     private final IUserService userService;
