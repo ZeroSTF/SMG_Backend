@@ -2,6 +2,9 @@ package tn.zeros.smg.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,28 +22,24 @@ import tn.zeros.smg.services.IServices.IAuthService;
 import tn.zeros.smg.services.IServices.ITokenService;
 import tn.zeros.smg.services.IServices.IUserService;
 
-import java.util.Map;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 @Slf4j
-@CrossOrigin(origins = "https://smgf.ghariani.com.tn", allowCredentials = "true")  // Enable CORS for this controller
 public class AuthenticationController {
-
     private final IUserService userService;
     private final IAuthService authService;
     private final ITokenService tokenService;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegistrationDTO body) {
-        try {
-            User user = createUserFromRegistrationDTO(body);
-            User registeredUser = authService.registerUser(user);
+        User user = new User(body.getEmail(), body.getPassword(), body.getNom(), body.getAdresse(), body.getCodetva(),
+                body.getTel1(), body.getTel2(), body.getFax(), body.getIdfiscal());
+        User registeredUser = authService.registerUser(user);
+        if (registeredUser != null) {
             return ResponseEntity.ok(registeredUser);
-        } catch (Exception e) {
-            log.error("Error during registration: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Registration failed");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
         }
     }
 
@@ -50,11 +49,9 @@ public class AuthenticationController {
             LoginResponseDTO response = authService.login(body.getCode(), body.getPassword());
             return ResponseEntity.ok(response);
         } catch (InvalidCredentialsException e) {
-            log.warn("Invalid login attempt: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid code or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Wrong code or password");
         } catch (Exception e) {
-            log.error("Login error: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during login");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
         }
     }
 
@@ -64,18 +61,20 @@ public class AuthenticationController {
             authService.logout();
             return ResponseEntity.ok(new LogoutResponseDTO(true, "Logout successful!"));
         } catch (Exception e) {
-            log.error("Logout error: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(new LogoutResponseDTO(false, "Logout failed"));
+            return ResponseEntity.badRequest().body(new LogoutResponseDTO(false, e.getMessage()));
         }
     }
 
     @GetMapping("/check-token")
     public ResponseEntity<Boolean> checkToken(@RequestHeader("AccessToken") String token) {
         try {
-            boolean isTokenExpired = tokenService.isTokenExpired(token);
-            return ResponseEntity.ok(!isTokenExpired);
+            if (tokenService.isTokenExpired(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+            } else {
+                return ResponseEntity.ok(true);
+            }
         } catch (Exception e) {
-            log.error("Token validation error: {}", e.getMessage());
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
     }
@@ -84,34 +83,17 @@ public class AuthenticationController {
     public ResponseEntity<?> refreshToken(@RequestHeader("RefreshToken") String refreshToken) {
         try {
             Jwt decodedRefreshToken = tokenService.decodeJwt(refreshToken);
-            validateRefreshToken(decodedRefreshToken);
+            if (!"refresh".equals(decodedRefreshToken.getClaim("type"))) {
+                throw new InvalidBearerTokenException("Invalid token type");
+            }
             String username = decodedRefreshToken.getSubject();
             UserDetails userDetails = userService.loadUserByCode(username);
-            Map<String, String> tokens = tokenService.generateTokenPair(
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
+                    null, userDetails.getAuthorities());
+            Map<String, String> tokens = tokenService.generateTokenPair(authentication);
             return ResponseEntity.ok(tokens);
-        } catch (InvalidBearerTokenException e) {
-            log.warn("Invalid refresh token: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
         } catch (Exception e) {
-            log.error("Token refresh error: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("An error occurred during token refresh");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
         }
-    }
-
-    // Helper method to validate refresh tokens
-    private void validateRefreshToken(Jwt refreshToken) {
-        if (!"refresh".equals(refreshToken.getClaim("type"))) {
-            throw new InvalidBearerTokenException("Invalid token type");
-        }
-    }
-
-    // Helper method to create a User entity from RegistrationDTO
-    private User createUserFromRegistrationDTO(RegistrationDTO body) {
-        return new User(
-                body.getEmail(), body.getPassword(), body.getNom(),
-                body.getAdresse(), body.getCodetva(), body.getTel1(),
-                body.getTel2(), body.getFax(), body.getIdfiscal()
-        );
     }
 }
