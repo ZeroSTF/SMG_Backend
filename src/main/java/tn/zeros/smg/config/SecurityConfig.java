@@ -165,7 +165,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(frontendOrigin)); // Adjust as needed
+        configuration.setAllowedOrigins(Arrays.asList("https://*.ghariani.com.tn")); // Adjust as needed
         log.info("Allowed Origins : {}", configuration.getAllowedOrigins());
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
