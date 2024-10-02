@@ -36,7 +36,6 @@ import tn.zeros.smg.utils.RSAKeyProperties;
 
 import java.util.Arrays;
 
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -59,10 +58,12 @@ public class SecurityConfig {
 
     /**
      * Configures the authentication manager for the application.
-     * This method sets up the user details service and password encoder to be used for authentication.
+     * This method sets up the user details service and password encoder to be used
+     * for authentication.
      * The authentication manager is then returned as a Spring bean.
      *
-     * @param http the HttpSecurity object used to configure the security filter chain
+     * @param http the HttpSecurity object used to configure the security filter
+     *             chain
      * @return the configured AuthenticationManager
      * @throws Exception if there is an error configuring the authentication manager
      */
@@ -77,12 +78,17 @@ public class SecurityConfig {
 
     /**
      * Configures the security filter chain for the application.
-     * This method sets up the authorization rules, JWT authentication, and session management for the application.
-     * It allows public access to certain endpoints (e.g. API documentation, login, registration) and requires authentication for all other requests.
-     * The JWT authentication is configured to use the `jwtAuthenticationConverter` bean to extract authorities from the JWT token.
-     * The session management is configured to use a stateless session policy, which means no session is created or used.
+     * This method sets up the authorization rules, JWT authentication, and session
+     * management for the application.
+     * It allows public access to certain endpoints (e.g. API documentation, login,
+     * registration) and requires authentication for all other requests.
+     * The JWT authentication is configured to use the jwtAuthenticationConverter
+     * bean to extract authorities from the JWT token.
+     * The session management is configured to use a stateless session policy, which
+     * means no session is created or used.
      *
-     * @param http the HttpSecurity object used to configure the security filter chain
+     * @param http the HttpSecurity object used to configure the security filter
+     *             chain
      * @return the configured SecurityFilterChain
      * @throws Exception if there is an error configuring the security filter chain
      */
@@ -98,7 +104,8 @@ public class SecurityConfig {
                                 "/auth/refresh-token",
                                 "/user/verify", "/user/upload/**", "/actuator/**")
                         .permitAll()
-                        .requestMatchers("/article/delete/**", "/article/add", "/article/update/**").hasAuthority("ADMIN")
+                        .requestMatchers("/article/delete/**", "/article/add", "/article/update/**")
+                        .hasAuthority("ADMIN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
@@ -155,8 +162,10 @@ public class SecurityConfig {
     /**
      * Configures the CORS settings for the application.
      * This method sets up the CORS settings for the application.
-     * It allows requests from the specified origins, with the specified methods and headers.
-     * The CORS settings are configured to use the "roles" claim in the JWT token as the
+     * It allows requests from the specified origins, with the specified methods and
+     * headers.
+     * The CORS settings are configured to use the "roles" claim in the JWT token as
+     * the
      * authorities,
      * and it prefixes the authorities with "ROLE_".
      *
@@ -165,7 +174,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("https://*.ghariani.com.tn")); // Adjust as needed
+        configuration.setAllowedOrigins(Arrays.asList(frontendOrigin)); // Adjust as needed
         log.info("Allowed Origins : {}", configuration.getAllowedOrigins());
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
