@@ -8,7 +8,7 @@ WORKDIR /app
 COPY target/SMG-0.9.0.jar /app/SMG-0.9.0.jar
 
 # Expose the port that the Spring Boot application listens on
-EXPOSE 8080
+EXPOSE 8686
 
 # Run the Spring Boot application
 ENTRYPOINT ["java", "-jar", "/app/SMG-0.9.0.jar"]
