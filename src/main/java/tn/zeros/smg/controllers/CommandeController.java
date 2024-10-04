@@ -1,6 +1,7 @@
 package tn.zeros.smg.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.zeros.smg.entities.Commande;
@@ -38,6 +39,7 @@ public class CommandeController {
         return ResponseEntity.ok(updatedCommande);
     }
 
+    @Cacheable("currentCommandes")
     @GetMapping("/getAllCurrent")
     public ResponseEntity<List<Commande>> getAllCurrentCommandes() {
         User currentUser= userService.getCurrentUser();

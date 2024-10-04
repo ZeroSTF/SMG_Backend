@@ -58,7 +58,7 @@ public class UserService implements IUserService {
             List<User> admins = userRepository.findAdminUsers();
             admins.forEach(admin -> {
                 Notification N = Notification.builder().title("Nouveau utilisateur en attente")
-                        .description("Un nouvel utilisateur est en attente de confirmation").useRouter(true)
+                        .description("Un nouveau utilisateur est en attente de confirmation").useRouter(true)
                         .link("/dashboards/clients/" + user.getId()).user(admin).build();
                 notificationService.addNotification(N);
             });
