@@ -115,7 +115,7 @@ public class PanierService implements IPanierService {
         admins.forEach(admin -> {
             Notification N = Notification.builder().title("Nouvelle commande en attente")
                     .description("Une nouvelle commande est en attente de confirmation").useRouter(true)
-                    .link("/dashboards/commandes-pdf" + savedCommande.getId()).user(admin).build();
+                    .link("/dashboards/commandes-pdf/" + savedCommande.getId()).user(admin).build();
             notificationService.addNotification(N);
         });
 
