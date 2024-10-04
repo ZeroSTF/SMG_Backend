@@ -7,10 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tn.zeros.smg.entities.*;
 import tn.zeros.smg.entities.enums.CommandeStatus;
-import tn.zeros.smg.repositories.ArticleRepository;
-import tn.zeros.smg.repositories.CommandeRepository;
-import tn.zeros.smg.repositories.PanierArticleRepository;
-import tn.zeros.smg.repositories.PanierRepository;
+import tn.zeros.smg.repositories.*;
+import tn.zeros.smg.services.IServices.INotificationService;
 import tn.zeros.smg.services.IServices.IPanierService;
 
 import java.text.NumberFormat;
@@ -27,6 +25,8 @@ public class PanierService implements IPanierService {
     private final ArticleRepository articleRepository;
     private final PanierArticleRepository panierArticleRepository;
     private final CommandeRepository commandeRepository;
+    private final UserRepository userRepository;
+    private final INotificationService notificationService;
 
     @Override
     public PanierArticle addArticleToPanier(Long panierId, Long articleId, int quantity) {
@@ -95,7 +95,6 @@ public class PanierService implements IPanierService {
                 Number number = format.parse(article.getPVHT());
                 price= number.doubleValue();
             }catch (ParseException e) {
-                e.printStackTrace();
                 price= Double.parseDouble(article.getPVHT());
             }
             commandeItem.setPrice(price);
@@ -110,6 +109,15 @@ public class PanierService implements IPanierService {
         // Clear the panier
         panier.getPanierArticles().clear();
         panierRepository.save(panier);
+
+        log.info("notifying all admins");
+        List<User> admins = userRepository.findAdminUsers();
+        admins.forEach(admin -> {
+            Notification N = Notification.builder().title("Nouvelle commande en attente")
+                    .description("Une nouvelle commande est en attente de confirmation").useRouter(true)
+                    .link("/dashboards/commandes-pdf" + savedCommande.getId()).user(admin).build();
+            notificationService.addNotification(N);
+        });
 
         return savedCommande;
     }
